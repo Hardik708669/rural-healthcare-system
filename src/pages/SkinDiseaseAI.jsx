@@ -1,7 +1,49 @@
+import React, { useState } from 'react';
 import { theme } from '../theme';
 import { Camera, Upload, Brain, AlertTriangle, CheckCircle, FileImage, Zap, Shield } from 'lucide-react';
 
 export default function SkinDiseaseAI() {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+
+  // Function to handle image selection
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
+
+  // Function to send wound image to backend
+  const sendWoundImage = async () => {
+    if (!selectedImage) {
+      alert('Please select an image first');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedImage);
+
+      const res = await fetch('http://localhost:4000/api/wounds/report', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      setAnalysisResult(data);
+      console.log(data);
+    } catch (error) {
+      console.error('Error sending image:', error);
+      alert('Error analyzing image. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <div className="p-6 mt-20">
       {/* Header */}
@@ -27,17 +69,50 @@ export default function SkinDiseaseAI() {
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">Upload Image</h3>
             <p className="text-gray-400 mb-4">Drag & drop your image here or click to browse</p>
-            <button className={`${theme.button.primary} px-6 py-2`}>
+            
+            {/* Hidden file input */}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              id="image-upload"
+            />
+            
+            <label 
+              htmlFor="image-upload"
+              className={`${theme.button.primary} px-6 py-2 cursor-pointer inline-block`}
+            >
               <Upload className="w-4 h-4 mr-2 inline" />
               Choose File
-            </button>
+            </label>
+            
+            {selectedImage && (
+              <div className="mt-4 text-sm text-gray-300">
+                Selected: {selectedImage.name}
+              </div>
+            )}
+            
             <p className="text-sm text-gray-500 mt-3">Supports JPG, PNG up to 10MB</p>
           </div>
           
           <div className="flex gap-3">
-            <button className={`${theme.button.primary} flex-1 py-3`}>
-              <Zap className="w-4 h-4 mr-2 inline" />
-              Analyze Image
+            <button 
+              onClick={sendWoundImage}
+              disabled={isAnalyzing || !selectedImage}
+              className={`${theme.button.primary} flex-1 py-3 ${isAnalyzing || !selectedImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isAnalyzing ? (
+                <span className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Analyzing...
+                </span>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 mr-2 inline" />
+                  Analyze Image
+                </>
+              )}
             </button>
             <button className={`${theme.button.outline} py-3`}>
               <FileImage className="w-4 h-4 mr-2 inline" />
@@ -60,35 +135,76 @@ export default function SkinDiseaseAI() {
             </div>
             
             <div className="space-y-4">
-              <div className="p-4 bg-purple/10 rounded-xl border border-purple/20">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-white">Melanoma Risk</span>
-                  <span className="text-red-400 font-bold">High</span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div className="bg-red-500 h-2 rounded-full" style={{width: '85%'}}></div>
-                </div>
-              </div>
-              
-              <div className="p-4 bg-teal/10 rounded-xl border border-teal/20">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-white">Eczema</span>
-                  <span className="text-teal-400 font-bold">Low</span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div className="bg-teal-500 h-2 rounded-full" style={{width: '25%'}}></div>
-                </div>
-              </div>
-              
-              <div className="p-4 bg-blue/10 rounded-xl border border-blue/20">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-white">Psoriasis</span>
-                  <span className="text-blue-400 font-bold">Medium</span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{width: '60%'}}></div>
-                </div>
-              </div>
+              {analysisResult ? (
+                // Display actual results from backend
+                Object.entries(analysisResult.conditions || {}).map(([condition, data], i) => (
+                  <div 
+                    key={i} 
+                    className={`p-4 rounded-xl border ${
+                      data.risk === 'High' ? 'bg-red-500/10 border-red-500/20' :
+                      data.risk === 'Medium' ? 'bg-blue-500/10 border-blue-500/20' :
+                      'bg-teal-500/10 border-teal-500/20'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-white">{condition}</span>
+                      <span className={`font-bold ${
+                        data.risk === 'High' ? 'text-red-400' :
+                        data.risk === 'Medium' ? 'text-blue-400' :
+                        'text-teal-400'
+                      }`}>
+                        {data.risk}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full ${
+                          data.risk === 'High' ? 'bg-red-500' :
+                          data.risk === 'Medium' ? 'bg-blue-500' :
+                          'bg-teal-500'
+                        }`} 
+                        style={{width: `${data.confidence}%`}}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Confidence: {data.confidence}%
+                    </div>
+                  </div>
+                ))
+              ) : (
+                // Display default results
+                <>
+                  <div className="p-4 bg-purple/10 rounded-xl border border-purple/20">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-white">Melanoma Risk</span>
+                      <span className="text-red-400 font-bold">High</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-red-500 h-2 rounded-full" style={{width: '85%'}}></div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-teal/10 rounded-xl border border-teal/20">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-white">Eczema</span>
+                      <span className="text-teal-400 font-bold">Low</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-teal-500 h-2 rounded-full" style={{width: '25%'}}></div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-blue/10 rounded-xl border border-blue/20">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-white">Psoriasis</span>
+                      <span className="text-blue-400 font-bold">Medium</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{width: '60%'}}></div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           

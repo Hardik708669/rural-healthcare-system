@@ -1,7 +1,45 @@
+import React, { useState } from 'react';
 import { Brain, Mic, Camera, MessageSquare, FileText, AlertTriangle, Heart, Thermometer, Stethoscope } from 'lucide-react';
 import { theme } from '../theme';
 
 export default function SymptomChecker() {
+  const [symptomsInput, setSymptomsInput] = useState('');
+  const [severity, setSeverity] = useState('mild');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+
+  // Function to send symptoms to backend
+  const sendSymptoms = async () => {
+    if (!symptomsInput.trim()) {
+      alert('Please enter your symptoms');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    try {
+      const res = await fetch('http://localhost:4000/api/symptoms/report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          symptoms: symptomsInput,
+          severity: severity
+        })
+      });
+      
+      const data = await res.json();
+      setAnalysisResult(data);
+      console.log(data);
+    } catch (error) {
+      console.error('Error sending symptoms:', error);
+      alert('Error analyzing symptoms. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <div className="p-6 mt-20">
       {/* Header */}
@@ -62,6 +100,45 @@ export default function SymptomChecker() {
               </button>
             ))}
           </div>
+          
+          {/* Text Input Section */}
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-white mb-4">Describe Your Symptoms</h3>
+            <textarea
+              value={symptomsInput}
+              onChange={(e) => setSymptomsInput(e.target.value)}
+              placeholder="Please describe your symptoms in detail..."
+              className="w-full h-32 p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+            
+            <div className="mt-4">
+              <label className="text-white font-medium mb-2 block">Severity Level</label>
+              <select
+                value={severity}
+                onChange={(e) => setSeverity(e.target.value)}
+                className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="mild">Mild</option>
+                <option value="moderate">Moderate</option>
+                <option value="severe">Severe</option>
+              </select>
+            </div>
+            
+            <button
+              onClick={sendSymptoms}
+              disabled={isAnalyzing}
+              className={`${theme.button.primary} w-full mt-4 py-3 ${isAnalyzing ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isAnalyzing ? (
+                <span className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Analyzing...
+                </span>
+              ) : (
+                'Analyze Symptoms'
+              )}
+            </button>
+          </div>
         </div>
         
         {/* Right Column - AI Analysis Preview */}
@@ -75,9 +152,23 @@ export default function SymptomChecker() {
                 <div>
                   <div className="font-semibold text-white mb-2">AI Analysis</div>
                   <div className="text-gray-300 text-sm">
-                    "Based on your symptoms: fever, headache, and body aches, possible conditions include 
-                    viral infection or malaria. Urgency level: Medium. Recommendation: Consult a doctor 
-                    within 24 hours and stay hydrated."
+                    {analysisResult ? (
+                      <div>
+                        <p>{analysisResult.analysis || "Based on your symptoms: fever, headache, and body aches, possible conditions include viral infection or malaria. Urgency level: Medium. Recommendation: Consult a doctor within 24 hours and stay hydrated."}</p>
+                        {analysisResult.recommendations && (
+                          <div className="mt-2">
+                            <strong>Recommendations:</strong>
+                            <ul className="list-disc pl-5 mt-1">
+                              {analysisResult.recommendations.map((rec, i) => (
+                                <li key={i}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      "Based on your symptoms: fever, headache, and body aches, possible conditions include viral infection or malaria. Urgency level: Medium. Recommendation: Consult a doctor within 24 hours and stay hydrated."
+                    )}
                   </div>
                 </div>
               </div>
@@ -86,11 +177,15 @@ export default function SymptomChecker() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-purple/20 border border-purple/30 rounded-xl p-3">
                 <div className="text-purple font-medium">Urgency</div>
-                <div className="text-white">Medium</div>
+                <div className="text-white">
+                  {analysisResult?.urgency || "Medium"}
+                </div>
               </div>
               <div className="bg-teal/20 border border-teal/30 rounded-xl p-3">
                 <div className="text-teal font-medium">Confidence</div>
-                <div className="text-white">85%</div>
+                <div className="text-white">
+                  {analysisResult?.confidence ? `${analysisResult.confidence}%` : "85%"}
+                </div>
               </div>
             </div>
           </div>
