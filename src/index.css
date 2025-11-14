@@ -20,6 +20,31 @@ body {
   background: linear-gradient(135deg, #0d1f1a 0%, #081410 50%, #152d25 100%);
 }
 
+/* Custom Gradient Classes */
+.bg-gradient-dark-green {
+  background: linear-gradient(135deg, #0d1f1a 0%, #081410 50%, #152d25 100%);
+}
+
+.bg-gradient-teal {
+  background: linear-gradient(to right, #35aa8f, #38b2ac);
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(to right, #8b5cf6, #a855f7);
+}
+
+.bg-gradient-hero {
+  background: linear-gradient(135deg, #0d1f1a 0%, #081410 50%, #152d25 100%);
+}
+
+.bg-navy {
+  background-color: #0d1f1a;
+}
+
+.bg-navy-dark {
+  background-color: #081410;
+}
+
 /* Entry Animations */
 @keyframes fadeInUp {
   from {

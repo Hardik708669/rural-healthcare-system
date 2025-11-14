@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Shield } from 'lucide-react';
 import { login, saveUserProfile } from '../utils/auth';
 
 const Signup = () => {
@@ -8,7 +8,8 @@ const Signup = () => {
     name: '', 
     email: '', 
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'Patient' // Default role is Patient
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -41,7 +42,7 @@ const Signup = () => {
         id: 'user-' + Date.now(),
         name: formData.name,
         email: formData.email,
-        role: 'Patient',
+        role: formData.role, // Use selected role
         avatar: null,
         createdAt: new Date().toISOString()
       };
@@ -84,6 +85,37 @@ const Signup = () => {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Account Type Selection */}
+            <div className="animate-fadeInUp animate-delay-100">
+              <label className="block text-sm font-medium text-white mb-2">Account Type</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, role: 'Patient'})}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
+                    formData.role === 'Patient'
+                      ? 'bg-teal-500/30 border-teal-500 text-white'
+                      : 'bg-white/10 border-white/20 text-gray-300 hover:bg-white/20'
+                  }`}
+                >
+                  <User className="w-5 h-5" />
+                  <span>User</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, role: 'Admin'})}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
+                    formData.role === 'Admin'
+                      ? 'bg-purple-500/30 border-purple-500 text-white'
+                      : 'bg-white/10 border-white/20 text-gray-300 hover:bg-white/20'
+                  }`}
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Admin</span>
+                </button>
+              </div>
+            </div>
+
             {/* Full Name */}
             <div className="animate-fadeInUp animate-delay-200">
               <label className="block text-sm font-medium text-white mb-2">Full Name</label>
@@ -179,7 +211,7 @@ const Signup = () => {
               type="submit"
               className="w-full px-8 py-3 backdrop-blur-xl bg-gradient-teal border border-white/30 text-white rounded-xl font-semibold hover:bg-teal-600 transition-all shadow-lg animate-scaleIn"
             >
-              Create Account <ArrowRight className="ml-2 w-5 h-5" />
+              Create {formData.role} Account <ArrowRight className="ml-2 w-5 h-5" />
             </button>
           </form>
 

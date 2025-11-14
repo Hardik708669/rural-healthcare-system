@@ -1,6 +1,5 @@
 import Card from "../components/Card";
 import ChatbotWidget from "../components/ChatbotWidget";
-import SOSButton from "../components/SOSButton";
 import { theme } from "../theme";
 import { Brain, Video, Bell, Activity, MapPin, Users } from 'lucide-react';
 
@@ -168,7 +167,6 @@ export default function Home() {
       </div>
 
       <ChatbotWidget />
-      <SOSButton />
     </div>
   );
 }
