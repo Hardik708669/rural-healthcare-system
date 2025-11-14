@@ -10,6 +10,14 @@ const UserProfile = () => {
   const [showWebcam, setShowWebcam] = useState(false);
   const profileRef = useRef(null);
 
+  // Load user avatar from localStorage if available
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+      setUser(prevUser => ({ ...prevUser, avatar: savedAvatar }));
+    }
+  }, []);
+
   // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -36,20 +44,44 @@ const UserProfile = () => {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check if file is an image
+      if (!file.type.match('image.*')) {
+        alert('Please select an image file (JPEG, PNG, etc.)');
+        return;
+      }
+      
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB limit. Please choose a smaller image.');
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = (e) => {
         setUser({ ...user, avatar: e.target.result });
+        // Save to localStorage
+        localStorage.setItem('userAvatar', e.target.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleWebcamCapture = (imageData) => {
-    setUser({ ...user, avatar: imageData });
+    if (imageData) {
+      setUser({ ...user, avatar: imageData });
+      // Save to localStorage
+      localStorage.setItem('userAvatar', imageData);
+    }
     setShowWebcam(false);
   };
 
   const openWebcam = () => {
+    // Check if browser supports media devices
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('Your browser does not support camera access. Please try a different browser.');
+      return;
+    }
+    
     setShowWebcam(true);
     setIsOpen(false); // Close the profile dropdown
   };

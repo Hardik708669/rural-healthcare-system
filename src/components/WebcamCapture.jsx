@@ -1,52 +1,109 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, X, Check } from 'lucide-react';
 
 const WebcamCapture = ({ onCapture, onClose }) => {
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
   // Start the camera
   const startCamera = async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Your browser does not support camera access. Please try a different browser.');
+      }
+
+      // Stop any existing stream first
+      if (streamRef.current) {
+        const tracks = streamRef.current.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+
+      const constraints = {
+        video: {
           width: { ideal: 640 },
           height: { ideal: 480 },
           facingMode: 'user'
-        } 
-      });
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // Handle video play event
+        videoRef.current.onloadedmetadata = () => {
+          setLoading(false);
+          setCameraActive(true);
+        };
+      } else {
+        setLoading(false);
+        setCameraActive(true);
       }
-      setCameraActive(true);
     } catch (err) {
       console.error('Error accessing camera:', err);
-      alert('Could not access the camera. Please make sure you have given permission and that your camera is working.');
+      setLoading(false);
+      
+      let errorMessage = 'Could not access the camera. Please make sure you have given permission and that your camera is working.';
+      
+      // Provide more specific error messages
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMessage = 'Camera access was denied. Please allow camera access in your browser settings and try again.';
+      } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
+        errorMessage = 'No camera found or camera not supported. Please check your camera connection.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage = 'Camera is already in use by another application. Please close other applications using the camera.';
+      } else if (err.name === 'AbortError') {
+        errorMessage = 'Camera access was aborted. Please try again.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     }
   };
 
   // Stop the camera
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      const tracks = streamRef.current.getTracks();
+      tracks.forEach(track => {
+        try {
+          track.stop();
+        } catch (err) {
+          console.warn('Error stopping track:', err);
+        }
+      });
       streamRef.current = null;
     }
     setCameraActive(false);
+    setLoading(false);
   };
 
   // Capture image from video stream
   const captureImage = () => {
-    if (videoRef.current) {
+    if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext('2d');
+      
+      // Draw the video frame to canvas
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      
+      // Convert to data URL
       const imageData = canvas.toDataURL('image/png');
       setCapturedImage(imageData);
+    } else {
+      setError('Video is not ready. Please wait a moment and try again.');
     }
   };
 
@@ -61,16 +118,20 @@ const WebcamCapture = ({ onCapture, onClose }) => {
   // Retake the photo
   const retakePhoto = () => {
     setCapturedImage(null);
+    setError(null);
   };
 
   // Cleanup resources
   const cleanup = () => {
     stopCamera();
+    setCapturedImage(null);
+    setError(null);
     if (onClose) onClose();
   };
 
   // Handle component unmount
-  React.useEffect(() => {
+  useEffect(() => {
+    // Cleanup when component unmounts
     return () => {
       cleanup();
     };
@@ -81,7 +142,7 @@ const WebcamCapture = ({ onCapture, onClose }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-gray-800">
-            {capturedImage ? 'Confirm Photo' : cameraActive ? 'Take Photo' : 'Camera'}
+            {error ? 'Camera Error' : capturedImage ? 'Confirm Photo' : cameraActive ? 'Take Photo' : 'Camera'}
           </h3>
           <button 
             onClick={cleanup}
@@ -92,7 +153,40 @@ const WebcamCapture = ({ onCapture, onClose }) => {
         </div>
         
         <div className="p-6">
-          {!cameraActive && !capturedImage && (
+          {error && (
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
+                <Camera className="w-12 h-12 text-red-500" />
+              </div>
+              <p className="text-red-600 text-center">
+                {error}
+              </p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  startCamera();
+                }}
+                className="w-full py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-xl font-semibold hover:from-teal-600 hover:to-green-700 transition-all shadow-lg"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={cleanup}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          
+          {loading && !error && (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-gray-600">Accessing camera...</p>
+            </div>
+          )}
+          
+          {!error && !loading && !cameraActive && !capturedImage && (
             <div className="flex flex-col items-center gap-6">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
                 <Camera className="w-12 h-12 text-gray-400" />
@@ -110,19 +204,21 @@ const WebcamCapture = ({ onCapture, onClose }) => {
             </div>
           )}
           
-          {cameraActive && !capturedImage && (
+          {!error && !loading && cameraActive && !capturedImage && (
             <div className="flex flex-col items-center gap-4">
               <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
+                  muted
                   className="w-full h-full object-cover"
                 />
               </div>
               <button
                 onClick={captureImage}
-                className="w-16 h-16 rounded-full bg-gradient-to-r from-teal-500 to-green-600 text-white flex items-center justify-center shadow-lg hover:from-teal-600 hover:to-green-700 transition-all focus:ring-4 focus:ring-teal-300"
+                disabled={!cameraActive}
+                className={`w-16 h-16 rounded-full bg-gradient-to-r from-teal-500 to-green-600 text-white flex items-center justify-center shadow-lg hover:from-teal-600 hover:to-green-700 transition-all focus:ring-4 focus:ring-teal-300 ${!cameraActive ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="w-12 h-12 rounded-full border-4 border-white"></div>
               </button>
@@ -135,7 +231,7 @@ const WebcamCapture = ({ onCapture, onClose }) => {
             </div>
           )}
           
-          {capturedImage && (
+          {!error && !loading && capturedImage && (
             <div className="flex flex-col items-center gap-6">
               <div className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 <img 
