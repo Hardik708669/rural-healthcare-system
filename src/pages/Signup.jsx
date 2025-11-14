@@ -1,28 +1,66 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Shield } from 'lucide-react';
+import { login, saveUserProfile } from '../utils/auth';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'Patient' // Default role is Patient
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate signup and authentication
-    if (formData.name && formData.email && formData.password && formData.password === formData.confirmPassword) {
+    setError('');
+    
+    // Validation
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    try {
+      // Create user object
+      const newUser = {
+        id: 'user-' + Date.now(),
+        name: formData.name,
+        email: formData.email,
+        role: formData.role, // Use selected role
+        avatar: null,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Save user to IndexedDB
+      await saveUserProfile(newUser);
+      
       // Set authentication status in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      // Dispatch custom event to notify auth status change
-      window.dispatchEvent(new Event('authChange'));
+      login();
+      
+      // Save user data to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(newUser));
+      
       // Redirect to home page after signup
       navigate('/');
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Failed to create account. Please try again.');
     }
   };
 
@@ -40,7 +78,44 @@ const Signup = () => {
 
         {/* Signup Form */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-xl p-8 glass-card">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Account Type Selection */}
+            <div className="animate-fadeInUp animate-delay-100">
+              <label className="block text-sm font-medium text-white mb-2">Account Type</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, role: 'Patient'})}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
+                    formData.role === 'Patient'
+                      ? 'bg-teal-500/30 border-teal-500 text-white'
+                      : 'bg-white/10 border-white/20 text-gray-300 hover:bg-white/20'
+                  }`}
+                >
+                  <User className="w-5 h-5" />
+                  <span>User</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, role: 'Admin'})}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
+                    formData.role === 'Admin'
+                      ? 'bg-purple-500/30 border-purple-500 text-white'
+                      : 'bg-white/10 border-white/20 text-gray-300 hover:bg-white/20'
+                  }`}
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Admin</span>
+                </button>
+              </div>
+            </div>
+
             {/* Full Name */}
             <div className="animate-fadeInUp animate-delay-200">
               <label className="block text-sm font-medium text-white mb-2">Full Name</label>
@@ -136,7 +211,7 @@ const Signup = () => {
               type="submit"
               className="w-full px-8 py-3 backdrop-blur-xl bg-gradient-teal border border-white/30 text-white rounded-xl font-semibold hover:bg-teal-600 transition-all shadow-lg animate-scaleIn"
             >
-              Create Account <ArrowRight className="ml-2 w-5 h-5" />
+              Create {formData.role} Account <ArrowRight className="ml-2 w-5 h-5" />
             </button>
           </form>
 

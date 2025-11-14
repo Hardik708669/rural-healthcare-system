@@ -1,7 +1,59 @@
-import { Video, User, Calendar, Phone, Clock, Monitor, Shield } from 'lucide-react';
+import { Video, User, Calendar, Phone, Clock, Monitor, Shield, X } from 'lucide-react';
 import { theme } from '../theme';
+import { useState } from 'react';
+import VideoCall from '../components/VideoCall';
 
 export default function Telemedicine() {
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [showVideoCall, setShowVideoCall] = useState(false);
+
+  const doctors = [
+    { 
+      id: 1,
+      name: 'Dr. Rajesh Kumar', 
+      specialty: 'General Physician', 
+      experience: '15 years',
+      rating: 4.8,
+      avatar: 'RK'
+    },
+    { 
+      id: 2,
+      name: 'Dr. Sunita Devi', 
+      specialty: 'Pediatrics', 
+      experience: '12 years',
+      rating: 4.9,
+      avatar: 'SD'
+    },
+    { 
+      id: 3,
+      name: 'Dr. Anil Patel', 
+      specialty: 'Cardiologist', 
+      experience: '20 years',
+      rating: 4.7,
+      avatar: 'AP'
+    }
+  ];
+
+  const timeSlots = ['10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:30 PM', '6:00 PM'];
+
+  const handleBookAppointment = () => {
+    if (selectedDoctor && selectedTime) {
+      // In a real app, this would book the appointment
+      alert(`Appointment booked with ${selectedDoctor.name} at ${selectedTime}`);
+    } else {
+      alert('Please select both a doctor and a time slot');
+    }
+  };
+
+  const startVideoCall = () => {
+    if (selectedDoctor) {
+      setShowVideoCall(true);
+    } else {
+      alert('Please select a doctor first');
+    }
+  };
+
   return (
     <div className="p-6 mt-20">
       {/* Header */}
@@ -26,32 +78,13 @@ export default function Telemedicine() {
             </div>
             
             <div className="space-y-4">
-              {[
-                { 
-                  name: 'Dr. Rajesh Kumar', 
-                  specialty: 'General Physician', 
-                  experience: '15 years',
-                  rating: 4.8,
-                  avatar: 'RK'
-                },
-                { 
-                  name: 'Dr. Sunita Devi', 
-                  specialty: 'Pediatrics', 
-                  experience: '12 years',
-                  rating: 4.9,
-                  avatar: 'SD'
-                },
-                { 
-                  name: 'Dr. Anil Patel', 
-                  specialty: 'Cardiologist', 
-                  experience: '20 years',
-                  rating: 4.7,
-                  avatar: 'AP'
-                }
-              ].map((doctor, i) => (
+              {doctors.map((doctor, i) => (
                 <div 
-                  key={i} 
-                  className={`flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer ${theme.animation.fadeInUp} animate-delay-${(i + 1) * 100}`}
+                  key={doctor.id} 
+                  onClick={() => setSelectedDoctor(doctor)}
+                  className={`flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer ${theme.animation.fadeInUp} animate-delay-${(i + 1) * 100} ${
+                    selectedDoctor && selectedDoctor.id === doctor.id ? 'ring-2 ring-primary' : ''
+                  }`}
                 >
                   <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
                     {doctor.avatar}
@@ -103,10 +136,15 @@ export default function Telemedicine() {
               <div>
                 <h3 className="text-gray-300 mb-3">Available Time Slots</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {['10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:30 PM', '6:00 PM'].map((time, i) => (
+                  {timeSlots.map((time, i) => (
                     <button 
                       key={i} 
-                      className={`px-3 py-2 rounded-xl text-white text-sm transition-all ${i === 0 ? 'bg-gradient-to-r from-teal-500 to-green-600' : 'bg-white/10 hover:bg-white/20 border border-white/20'}`}
+                      onClick={() => setSelectedTime(time)}
+                      className={`px-3 py-2 rounded-xl text-white text-sm transition-all ${
+                        selectedTime === time 
+                          ? 'bg-gradient-to-r from-teal-500 to-green-600' 
+                          : 'bg-white/10 hover:bg-white/20 border border-white/20'
+                      }`}
                     >
                       {time}
                     </button>
@@ -114,7 +152,11 @@ export default function Telemedicine() {
                 </div>
               </div>
               
-              <button className={`${theme.button.primary} w-full py-3`}>
+              <button 
+                onClick={handleBookAppointment}
+                className={`${theme.button.primary} w-full py-3`}
+                disabled={!selectedDoctor || !selectedTime}
+              >
                 Confirm Booking
               </button>
             </div>
@@ -148,29 +190,48 @@ export default function Telemedicine() {
               <h2 className="text-2xl font-bold text-white">Video Consultation</h2>
             </div>
             
-            <div className="flex flex-col items-center justify-center h-80 bg-black/30 rounded-2xl mb-6 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-green-600/10"></div>
-              <div className="relative z-10 text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-teal-500 to-green-600 rounded-full flex items-center justify-center mb-4 mx-auto animate-pulse">
-                  <Video className="w-12 h-12 text-white" />
+            {selectedDoctor ? (
+              <>
+                <div className="flex flex-col items-center justify-center h-80 bg-black/30 rounded-2xl mb-6 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-green-600/10"></div>
+                  <div className="relative z-10 text-center">
+                    <div className="w-24 h-24 bg-gradient-to-br from-teal-500 to-green-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+                      <User className="w-12 h-12 text-white" />
+                    </div>
+                    <div className="text-white font-medium">{selectedDoctor.name}</div>
+                    <div className="text-gray-300 text-sm mt-1">{selectedDoctor.specialty}</div>
+                    <div className="text-gray-400 text-sm mt-2">Ready for video consultation</div>
+                  </div>
                 </div>
-                <div className="text-gray-300">
-                  <div className="font-medium text-white">Ready to Connect</div>
-                  <div className="text-sm mt-1">Select a doctor and time slot to begin</div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/80 hover:bg-red-600 rounded-xl text-white font-medium transition-all">
+                    <Phone className="w-5 h-5" />
+                    Voice Call
+                  </button>
+                  <button 
+                    onClick={startVideoCall}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700 rounded-xl text-white font-medium transition-all shadow-lg"
+                  >
+                    <Video className="w-5 h-5" />
+                    Video Call
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-80 bg-black/30 rounded-2xl mb-6 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-green-600/10"></div>
+                <div className="relative z-10 text-center">
+                  <div className="w-24 h-24 bg-gradient-to-br from-teal-500 to-green-600 rounded-full flex items-center justify-center mb-4 mx-auto animate-pulse">
+                    <Video className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="text-gray-300">
+                    <div className="font-medium text-white">Ready to Connect</div>
+                    <div className="text-sm mt-1">Select a doctor to begin video consultation</div>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <button className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/80 hover:bg-red-600 rounded-xl text-white font-medium transition-all">
-                <Phone className="w-5 h-5" />
-                Voice Call
-              </button>
-              <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700 rounded-xl text-white font-medium transition-all shadow-lg">
-                <Video className="w-5 h-5" />
-                Video Call
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -202,6 +263,14 @@ export default function Telemedicine() {
           ))}
         </div>
       </div>
+      
+      {/* Video Call Modal */}
+      {showVideoCall && (
+        <VideoCall 
+          onClose={() => setShowVideoCall(false)} 
+          doctorName={selectedDoctor ? selectedDoctor.name : 'Doctor'}
+        />
+      )}
     </div>
   );
 }

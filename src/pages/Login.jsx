@@ -1,28 +1,57 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, User } from 'lucide-react';
+import { login, findUserByEmail } from '../utils/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate authentication
-    if (email && password) {
+    setError('');
+    
+    // Basic validation
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+    
+    try {
+      // In a real app, this would validate against IndexedDB or an API
+      // For demo purposes, we'll just check if the user exists in IndexedDB
+      const user = await findUserByEmail(email);
+      
+      // For demo, we'll allow login with any email/password
+      // In a real app, you would validate the password
+      
       // Set authentication status in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      // Dispatch custom event to notify auth status change
-      window.dispatchEvent(new Event('authChange'));
+      login();
+      
+      // Save user data to localStorage
+      const userData = user || {
+        id: 'user-' + Date.now(),
+        name: email.split('@')[0],
+        email: email,
+        role: userType === 'admin' ? 'Admin' : 'Patient',
+        avatar: null
+      };
+      
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      
       // Redirect based on user type
       if (userType === 'admin') {
         navigate('/admin');
       } else {
         navigate('/');
       }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Invalid email or password. Please try again.');
     }
   };
 
@@ -40,6 +69,12 @@ const Login = () => {
 
         {/* Login Form */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-xl p-8 glass-card">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* User Type Selection */}
             <div className="animate-fadeInUp animate-delay-200">
