@@ -16,9 +16,21 @@ const UserProfile = () => {
     const loadProfile = async () => {
       try {
         const profile = await getUserProfile();
-        setUser(profile);
+        // Check if there's a saved avatar in localStorage
+        const savedAvatar = localStorage.getItem('userAvatar');
+        if (savedAvatar && (!profile.avatar || profile.avatar !== savedAvatar)) {
+          const updatedProfile = { ...profile, avatar: savedAvatar };
+          setUser(updatedProfile);
+        } else {
+          setUser(profile);
+        }
       } catch (error) {
         console.error('Error loading user profile:', error);
+        // Fallback to localStorage avatar if exists
+        const savedAvatar = localStorage.getItem('userAvatar');
+        if (savedAvatar) {
+          setUser(prev => ({ ...prev, avatar: savedAvatar }));
+        }
       }
     };
     
@@ -65,7 +77,8 @@ const UserProfile = () => {
       
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const updatedUser = { ...user, avatar: e.target.result };
+        const imageData = e.target.result;
+        const updatedUser = { ...user, avatar: imageData };
         setUser(updatedUser);
         // Save to IndexedDB
         try {
@@ -73,7 +86,7 @@ const UserProfile = () => {
         } catch (error) {
           console.error('Error saving user profile:', error);
           // Fallback to localStorage
-          localStorage.setItem('userAvatar', e.target.result);
+          localStorage.setItem('userAvatar', imageData);
         }
       };
       reader.readAsDataURL(file);
