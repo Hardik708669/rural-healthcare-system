@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { login, saveUserProfile } from '../utils/auth';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ 
@@ -11,18 +12,54 @@ const Signup = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate signup and authentication
-    if (formData.name && formData.email && formData.password && formData.password === formData.confirmPassword) {
+    setError('');
+    
+    // Validation
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    try {
+      // Create user object
+      const newUser = {
+        id: 'user-' + Date.now(),
+        name: formData.name,
+        email: formData.email,
+        role: 'Patient',
+        avatar: null,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Save user to IndexedDB
+      await saveUserProfile(newUser);
+      
       // Set authentication status in localStorage
-      localStorage.setItem('isAuthenticated', 'true');
-      // Dispatch custom event to notify auth status change
-      window.dispatchEvent(new Event('authChange'));
+      login();
+      
+      // Save user data to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(newUser));
+      
       // Redirect to home page after signup
       navigate('/');
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Failed to create account. Please try again.');
     }
   };
 
@@ -40,6 +77,12 @@ const Signup = () => {
 
         {/* Signup Form */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-xl p-8 glass-card">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div className="animate-fadeInUp animate-delay-200">

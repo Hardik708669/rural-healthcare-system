@@ -1,21 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut, Camera, Webcam } from 'lucide-react';
+import { User, Settings, LogOut, Camera, Webcam, AlertCircle } from 'lucide-react';
 import { theme } from '../theme';
-import { logout, getUserProfile } from '../utils/auth';
+import { logout, getUserProfile, saveUserProfile } from '../utils/auth';
 import WebcamCapture from './WebcamCapture';
 
 const UserProfile = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(getUserProfile());
+  const [user, setUser] = useState({ id: 'default-user', name: 'John Doe', email: 'john.doe@example.com', role: 'Patient', avatar: null });
   const [showWebcam, setShowWebcam] = useState(false);
+  const [webcamError, setWebcamError] = useState(null);
   const profileRef = useRef(null);
 
-  // Load user avatar from localStorage if available
+  // Load user profile
   useEffect(() => {
-    const savedAvatar = localStorage.getItem('userAvatar');
-    if (savedAvatar) {
-      setUser(prevUser => ({ ...prevUser, avatar: savedAvatar }));
-    }
+    const loadProfile = async () => {
+      try {
+        const profile = await getUserProfile();
+        setUser(profile);
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      }
+    };
+    
+    loadProfile();
   }, []);
 
   // Close profile dropdown when clicking outside
@@ -57,29 +64,61 @@ const UserProfile = () => {
       }
       
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setUser({ ...user, avatar: e.target.result });
-        // Save to localStorage
-        localStorage.setItem('userAvatar', e.target.result);
+      reader.onload = async (e) => {
+        const updatedUser = { ...user, avatar: e.target.result };
+        setUser(updatedUser);
+        // Save to IndexedDB
+        try {
+          await saveUserProfile(updatedUser);
+        } catch (error) {
+          console.error('Error saving user profile:', error);
+          // Fallback to localStorage
+          localStorage.setItem('userAvatar', e.target.result);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleWebcamCapture = (imageData) => {
+  const handleWebcamCapture = async (imageData) => {
     if (imageData) {
-      setUser({ ...user, avatar: imageData });
-      // Save to localStorage
-      localStorage.setItem('userAvatar', imageData);
+      const updatedUser = { ...user, avatar: imageData };
+      setUser(updatedUser);
+      // Save to IndexedDB
+      try {
+        await saveUserProfile(updatedUser);
+      } catch (error) {
+        console.error('Error saving user profile:', error);
+        // Fallback to localStorage
+        localStorage.setItem('userAvatar', imageData);
+      }
     }
     setShowWebcam(false);
+    setWebcamError(null);
   };
 
-  const openWebcam = () => {
+  const openWebcam = async () => {
     // Check if browser supports media devices
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('Your browser does not support camera access. Please try a different browser.');
+      const errorMsg = 'Your browser does not support camera access. Please try a different browser.';
+      setWebcamError(errorMsg);
+      alert(errorMsg);
       return;
+    }
+    
+    // Check for camera permissions
+    try {
+      // Try to check if we already have permission
+      if (navigator.permissions) {
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        console.log('Camera permission status:', permission.state);
+        
+        if (permission.state === 'denied') {
+          setWebcamError('Camera access has been denied. Please enable camera access in your browser settings.');
+        }
+      }
+    } catch (err) {
+      console.warn('Could not check camera permissions:', err);
     }
     
     setShowWebcam(true);
@@ -134,9 +173,12 @@ const UserProfile = () => {
                   </label>
                   <button 
                     onClick={openWebcam}
-                    className="bg-teal-500 rounded-full p-1 cursor-pointer"
+                    className="bg-teal-500 rounded-full p-1 cursor-pointer relative"
                   >
                     <Webcam className="w-4 h-4 text-white" />
+                    {webcamError && (
+                      <AlertCircle className="w-4 h-4 text-red-500 absolute -top-1 -right-1" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -175,7 +217,10 @@ const UserProfile = () => {
       {showWebcam && (
         <WebcamCapture 
           onCapture={handleWebcamCapture} 
-          onClose={() => setShowWebcam(false)} 
+          onClose={() => {
+            setShowWebcam(false);
+            setWebcamError(null);
+          }} 
         />
       )}
     </div>

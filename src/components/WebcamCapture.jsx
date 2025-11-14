@@ -1,13 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, X, Check } from 'lucide-react';
+import { Camera, X, Check, AlertCircle } from 'lucide-react';
 
 const WebcamCapture = ({ onCapture, onClose }) => {
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [devices, setDevices] = useState([]);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+
+  // Check for camera devices
+  const getCameraDevices = async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        const allDevices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = allDevices.filter(device => device.kind === 'videoinput');
+        setDevices(videoDevices);
+        return videoDevices;
+      }
+    } catch (err) {
+      console.warn('Could not enumerate devices:', err);
+    }
+    return [];
+  };
 
   // Start the camera
   const startCamera = async () => {
@@ -23,17 +39,40 @@ const WebcamCapture = ({ onCapture, onClose }) => {
       // Stop any existing stream first
       if (streamRef.current) {
         const tracks = streamRef.current.getTracks();
-        tracks.forEach(track => track.stop());
+        tracks.forEach(track => {
+          try {
+            track.stop();
+          } catch (err) {
+            console.warn('Error stopping track:', err);
+          }
+        });
+        streamRef.current = null;
+      }
+
+      // Get available cameras
+      const cameras = await getCameraDevices();
+      
+      // If no cameras found
+      if (cameras.length === 0) {
+        // Try with default constraints
+        console.warn('No cameras found, trying default constraints');
       }
 
       const constraints = {
         video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
           facingMode: 'user'
         }
       };
 
+      // If we have specific cameras, try to use the first one
+      if (cameras.length > 0) {
+        constraints.video.deviceId = { exact: cameras[0].deviceId };
+      }
+
+      console.log('Requesting camera with constraints:', constraints);
+      
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       
@@ -41,10 +80,24 @@ const WebcamCapture = ({ onCapture, onClose }) => {
         videoRef.current.srcObject = stream;
         // Handle video play event
         videoRef.current.onloadedmetadata = () => {
+          console.log('Video metadata loaded');
           setLoading(false);
           setCameraActive(true);
         };
+        
+        // Handle video play event
+        videoRef.current.onplay = () => {
+          console.log('Video playing');
+        };
+        
+        // Handle video error
+        videoRef.current.onerror = (e) => {
+          console.error('Video error:', e);
+          setError('Error playing video stream');
+          setLoading(false);
+        };
       } else {
+        console.warn('No video ref available');
         setLoading(false);
         setCameraActive(true);
       }
@@ -66,6 +119,13 @@ const WebcamCapture = ({ onCapture, onClose }) => {
       } else if (err.message) {
         errorMessage = err.message;
       }
+      
+      console.error('Camera error details:', {
+        name: err.name,
+        message: err.message,
+        constraint: err.constraint,
+        toString: err.toString()
+      });
       
       setError(errorMessage);
     }
@@ -91,17 +151,22 @@ const WebcamCapture = ({ onCapture, onClose }) => {
   // Capture image from video stream
   const captureImage = () => {
     if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
-      
-      // Draw the video frame to canvas
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      
-      // Convert to data URL
-      const imageData = canvas.toDataURL('image/png');
-      setCapturedImage(imageData);
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext('2d');
+        
+        // Draw the video frame to canvas
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        
+        // Convert to data URL
+        const imageData = canvas.toDataURL('image/png');
+        setCapturedImage(imageData);
+      } catch (err) {
+        console.error('Error capturing image:', err);
+        setError('Failed to capture image. Please try again.');
+      }
     } else {
       setError('Video is not ready. Please wait a moment and try again.');
     }
@@ -156,26 +221,28 @@ const WebcamCapture = ({ onCapture, onClose }) => {
           {error && (
             <div className="flex flex-col items-center gap-4">
               <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
-                <Camera className="w-12 h-12 text-red-500" />
+                <AlertCircle className="w-12 h-12 text-red-500" />
               </div>
-              <p className="text-red-600 text-center">
+              <p className="text-red-600 text-center text-sm">
                 {error}
               </p>
-              <button
-                onClick={() => {
-                  setError(null);
-                  startCamera();
-                }}
-                className="w-full py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-xl font-semibold hover:from-teal-600 hover:to-green-700 transition-all shadow-lg"
-              >
-                Try Again
-              </button>
-              <button
-                onClick={cleanup}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                Cancel
-              </button>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => {
+                    setError(null);
+                    startCamera();
+                  }}
+                  className="flex-1 py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-xl font-semibold hover:from-teal-600 hover:to-green-700 transition-all shadow-lg"
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={cleanup}
+                  className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
           
@@ -183,6 +250,7 @@ const WebcamCapture = ({ onCapture, onClose }) => {
             <div className="flex flex-col items-center gap-4 py-8">
               <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
               <p className="text-gray-600">Accessing camera...</p>
+              <p className="text-gray-400 text-sm text-center">Make sure to allow camera access when prompted by your browser</p>
             </div>
           )}
           
@@ -201,6 +269,9 @@ const WebcamCapture = ({ onCapture, onClose }) => {
                 <Camera className="w-5 h-5" />
                 Open Camera
               </button>
+              <p className="text-gray-400 text-sm text-center">
+                You'll need to allow camera access when prompted by your browser
+              </p>
             </div>
           )}
           

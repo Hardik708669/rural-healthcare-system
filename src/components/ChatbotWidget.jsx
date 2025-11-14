@@ -150,11 +150,16 @@ const ChatbotWidget = () => {
         </div>
       ) : null}
       
+      {/* Simplified chatbot button with explicit visibility */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`${theme.button.primary} fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center animate-float z-40 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95`}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-teal-500 to-green-600 flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 z-60"
+        style={{ 
+          animation: 'float 3s ease-in-out infinite',
+          display: 'block'
+        }}
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="w-6 h-6 text-white" />
       </button>
     </>
   );
