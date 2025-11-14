@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
@@ -11,10 +11,19 @@ const Signup = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signup:', formData);
+    // Simulate signup and authentication
+    if (formData.name && formData.email && formData.password && formData.password === formData.confirmPassword) {
+      // Set authentication status in localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      // Dispatch custom event to notify auth status change
+      window.dispatchEvent(new Event('authChange'));
+      // Redirect to home page after signup
+      navigate('/');
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, User } from 'lucide-react';
 
 const Login = () => {
@@ -7,13 +7,22 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (userType === 'admin') {
-      window.location.href = '/admin';
-    } else {
-      window.location.href = '/';
+    // Simulate authentication
+    if (email && password) {
+      // Set authentication status in localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      // Dispatch custom event to notify auth status change
+      window.dispatchEvent(new Event('authChange'));
+      // Redirect based on user type
+      if (userType === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     }
   };
 

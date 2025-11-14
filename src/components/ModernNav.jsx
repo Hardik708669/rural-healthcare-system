@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { theme } from '../theme';
 import { Menu, X, User } from 'lucide-react';
+import NotificationIcon from './NotificationIcon';
+import UserProfile from './UserProfile';
 
 const ModernNav = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const isActive = (path) => location.pathname === path;
   
@@ -17,6 +20,40 @@ const ModernNav = () => {
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'About', path: '/about' }
   ];
+
+  // Check authentication status
+  const checkAuthStatus = () => {
+    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+    setIsAuthenticated(authStatus);
+  };
+
+  // For demo purposes, we'll simulate authentication state
+  // In a real app, this would come from your auth context or state management
+  useEffect(() => {
+    // Check initial auth status
+    checkAuthStatus();
+    
+    // Listen for storage changes (when user logs in/out in other tabs)
+    const handleStorageChange = (e) => {
+      if (e.key === 'isAuthenticated') {
+        checkAuthStatus();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for custom auth events (when user logs in/out in same tab)
+    const handleAuthChange = () => {
+      checkAuthStatus();
+    };
+    
+    window.addEventListener('authChange', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authChange', handleAuthChange);
+    };
+  }, []);
 
   return (
     <nav className={`fixed top-0 w-full z-50 backdrop-blur-xl bg-dark/90 border-b border-white/20 shadow-xl ${theme.animation.fadeInDown}`}>
@@ -43,17 +80,24 @@ const ModernNav = () => {
             ))}
           </div>
           
-          {/* Auth Buttons */}
+          {/* Auth Buttons and Notification Icon */}
           <div className="hidden md:flex items-center gap-4">
-            <Link to="/login" className={`px-4 py-2 text-white hover:text-primary transition-colors duration-300 transform hover:scale-105`}>
-              Sign In
-            </Link>
-            <Link 
-              to="/signup" 
-              className={`px-4 py-2 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg text-sm font-semibold hover:from-teal-600 hover:to-green-700 transition-all duration-300 shadow-lg ${theme.animation.scaleIn} hover:shadow-xl transform hover:scale-105 active:scale-95`}
-            >
-              Sign Up
-            </Link>
+            <NotificationIcon />
+            {isAuthenticated ? (
+              <UserProfile />
+            ) : (
+              <>
+                <Link to="/login" className={`px-4 py-2 text-white hover:text-primary transition-colors duration-300 transform hover:scale-105`}>
+                  Sign In
+                </Link>
+                <Link 
+                  to="/signup" 
+                  className={`px-4 py-2 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg text-sm font-semibold hover:from-teal-600 hover:to-green-700 transition-all duration-300 shadow-lg ${theme.animation.scaleIn} hover:shadow-xl transform hover:scale-105 active:scale-95`}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
           
           {/* Mobile Menu Button */}
@@ -80,20 +124,28 @@ const ModernNav = () => {
                 </Link>
               ))}
               <div className="flex gap-3 pt-4">
-                <Link 
-                  to="/login" 
-                  className="flex-1 px-4 py-2 text-center text-white border border-white/30 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="flex-1 px-4 py-2 text-center bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sign Up
-                </Link>
+                {isAuthenticated ? (
+                  <div className="w-full text-center py-2 text-white">
+                    <UserProfile />
+                  </div>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login" 
+                      className="flex-1 px-4 py-2 text-center text-white border border-white/30 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link 
+                      to="/signup" 
+                      className="flex-1 px-4 py-2 text-center bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
