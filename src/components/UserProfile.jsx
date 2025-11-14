@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut, Camera, Webcam, AlertCircle, Phone } from 'lucide-react';
+import { User, Settings, LogOut, Camera, Webcam, AlertCircle, Phone, Edit } from 'lucide-react';
 import { theme } from '../theme';
 import { logout, getUserProfile, saveUserProfile } from '../utils/auth';
+import { useNavigate } from 'react-router-dom';
 import WebcamCapture from './WebcamCapture';
 
 const UserProfile = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState({ id: 'default-user', name: 'John Doe', email: 'john.doe@example.com', role: 'Patient', avatar: null });
   const [showWebcam, setShowWebcam] = useState(false);
@@ -354,11 +356,23 @@ const UserProfile = () => {
           
           {/* Profile Menu */}
           <div className="py-2">
-            <button className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center gap-3">
+            <button 
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/profile');
+              }}
+              className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center gap-3"
+            >
               <User className="w-5 h-5 text-gray-400" />
               <span>My Profile</span>
             </button>
-            <button className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center gap-3">
+            <button 
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/profile#settings');
+              }}
+              className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center gap-3"
+            >
               <Settings className="w-5 h-5 text-gray-400" />
               <span>Settings</span>
             </button>

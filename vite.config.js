@@ -5,10 +5,16 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: true
+    host: true,
+    hmr: {
+      overlay: false
+    }
   },
   build: {
     outDir: 'dist',
     sourcemap: true
+  },
+  resolve: {
+    preserveSymlinks: true
   }
 })

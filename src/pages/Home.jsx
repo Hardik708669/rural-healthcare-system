@@ -2,25 +2,29 @@ import Card from "../components/Card";
 import ChatbotWidget from "../components/ChatbotWidget";
 import { theme } from "../theme";
 import { Brain, Video, Bell, Activity, MapPin, Users } from 'lucide-react';
+import { useLanguage } from "../contexts/LanguageContext";
+import { translations } from "../utils/translations";
 
 export default function Home() {
+  const { language } = useLanguage();
+  
   return (
     <div className="px-6 mt-20">
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-3xl mb-16 bg-gradient-to-br from-green-900 via-teal-900 to-emerald-900 p-8 md:p-12">
         <div className="relative z-10 max-w-4xl">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            AI-Powered Rural <span className="bg-gradient-to-r from-teal-400 via-green-400 to-emerald-400 bg-clip-text text-transparent">Healthcare</span>
+            {translations[language].aiPoweredRuralHealthcare.split(' ')[0]} <span className="bg-gradient-to-r from-teal-400 via-green-400 to-emerald-400 bg-clip-text text-transparent">{translations[language].aiPoweredRuralHealthcare.split(' ')[1]}</span> {translations[language].aiPoweredRuralHealthcare.split(' ').slice(2).join(' ')}
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-            Bridging healthcare gaps in underserved communities with cutting-edge AI technology, telemedicine, and real-time health monitoring.
+            {translations[language].bridgingHealthcareGaps}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <button className="px-8 py-4 bg-gradient-to-r from-teal-500 to-green-600 rounded-xl font-semibold text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/50">
-              Get Started
+              {translations[language].getStarted}
             </button>
             <button className="px-8 py-4 border-2 border-white/30 rounded-xl font-semibold text-white hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              Learn More
+              {translations[language].learnMore}
             </button>
           </div>
         </div>
@@ -29,35 +33,35 @@ export default function Home() {
       {/* Feature Showcase */}
       <div className="mb-16">
         <h2 className="text-3xl font-bold text-white text-center mb-4">
-          Empowering Rural Healthcare
+          {translations[language].empoweringRuralHealthcare}
         </h2>
         <p className="text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-          Our comprehensive platform provides essential healthcare services even in the most remote locations.
+          {translations[language].ourComprehensivePlatform}
         </p>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             { 
               icon: Video, 
-              title: "Telemedicine", 
-              desc: "Connect with doctors remotely via secure video consultations", 
+              title: translations[language].telemedicine, 
+              desc: translations[language].connectWithDoctors, 
               to: "/telemedicine" 
             },
             { 
               icon: Brain, 
-              title: "AI Symptom Checker", 
+              title: translations[language].aiSymptom, 
               desc: "Describe symptoms and get AI-powered health insights", 
               to: "/symptoms" 
             },
             { 
               icon: Bell, 
-              title: "Health Reminders", 
+              title: translations[language].reminders, 
               desc: "Never miss important health schedules and appointments", 
               to: "/reminders" 
             },
             { 
               icon: Activity, 
-              title: "Health Dashboard", 
+              title: translations[language].dashboard, 
               desc: "Monitor village health metrics and manage resources", 
               to: "/dashboard" 
             },
@@ -88,15 +92,15 @@ export default function Home() {
       {/* Statistics Dashboard Preview */}
       <div className="backdrop-blur-2xl bg-white/15 border border-white/25 rounded-3xl p-8 mb-16">
         <h2 className="text-3xl font-bold text-white text-center mb-12">
-          Real-Time Health Impact
+          {translations[language].realTimeHealthImpact}
         </h2>
         
         <div className="grid md:grid-cols-4 gap-6">
           {[
-            { value: "16,000+", label: "Health Workers Supported" },
-            { value: "12", label: "Villages Monitored" },
-            { value: "98%", label: "Service Uptime" },
-            { value: "24/7", label: "AI Availability" }
+            { value: "16,000+", label: translations[language].healthWorkersSupported },
+            { value: "12", label: translations[language].villagesMonitored },
+            { value: "98%", label: translations[language].serviceUptime },
+            { value: "24/7", label: translations[language].aiAvailability }
           ].map((stat, i) => (
             <div 
               key={i} 
@@ -112,7 +116,7 @@ export default function Home() {
       {/* Testimonials */}
       <div className="mb-16">
         <h2 className="text-3xl font-bold text-white text-center mb-12">
-          Trusted by Healthcare Professionals
+          {translations[language].trustedByHealthcareProfessionals}
         </h2>
         
         <div className="grid md:grid-cols-3 gap-6">
@@ -151,17 +155,17 @@ export default function Home() {
       {/* CTA Section */}
       <div className="backdrop-blur-2xl bg-white/15 border border-white/25 rounded-3xl p-8 md:p-12 text-center mb-16">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Ready to Transform Rural Healthcare?
+          {translations[language].readyToTransformRuralHealthcare}
         </h2>
         <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-          Join thousands of healthcare professionals and communities already using our platform.
+          {translations[language].joinThousands}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button className="px-8 py-4 bg-gradient-to-r from-teal-500 to-green-600 rounded-xl font-semibold text-white hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/50">
-            Start Free Trial
+            {translations[language].startFreeTrial}
           </button>
           <button className="px-8 py-4 border-2 border-teal-500 text-teal-400 font-semibold rounded-xl hover:bg-teal-500/10 transition-all duration-300">
-            Schedule Demo
+            {translations[language].scheduleDemo}
           </button>
         </div>
       </div>

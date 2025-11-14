@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Shield } from 'lucide-react';
 import { login, saveUserProfile } from '../utils/auth';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const Signup = () => {
+  const { language } = useLanguage();
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
@@ -22,17 +25,17 @@ const Signup = () => {
     
     // Validation
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Please fill in all fields');
+      setError(translations[language].fillAllFields);
       return;
     }
     
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(translations[language].passwordsDoNotMatch);
       return;
     }
     
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError(translations[language].passwordMinLength);
       return;
     }
     
@@ -60,7 +63,7 @@ const Signup = () => {
       navigate('/');
     } catch (err) {
       console.error('Signup error:', err);
-      setError('Failed to create account. Please try again.');
+      setError(translations[language].failedToCreateAccount);
     }
   };
 
@@ -72,8 +75,8 @@ const Signup = () => {
           <div className="w-16 h-16 bg-gradient-teal rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 animate-scaleIn">
             H
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-gray-300">Join Healthconnect today to access healthcare services</p>
+          <h1 className="text-3xl font-bold text-white mb-2">{translations[language].createAccount}</h1>
+          <p className="text-gray-300">{translations[language].joinHealthconnect}</p>
         </div>
 
         {/* Signup Form */}
@@ -87,7 +90,7 @@ const Signup = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Account Type Selection */}
             <div className="animate-fadeInUp animate-delay-100">
-              <label className="block text-sm font-medium text-white mb-2">Account Type</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].accountType}</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -99,7 +102,7 @@ const Signup = () => {
                   }`}
                 >
                   <User className="w-5 h-5" />
-                  <span>User</span>
+                  <span>{translations[language].user}</span>
                 </button>
                 <button
                   type="button"
@@ -111,14 +114,14 @@ const Signup = () => {
                   }`}
                 >
                   <Shield className="w-5 h-5" />
-                  <span>Admin</span>
+                  <span>{translations[language].admin}</span>
                 </button>
               </div>
             </div>
 
             {/* Full Name */}
             <div className="animate-fadeInUp animate-delay-200">
-              <label className="block text-sm font-medium text-white mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].fullName}</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -134,7 +137,7 @@ const Signup = () => {
 
             {/* Email */}
             <div className="animate-fadeInUp animate-delay-300">
-              <label className="block text-sm font-medium text-white mb-2">Email</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].email}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -150,7 +153,7 @@ const Signup = () => {
 
             {/* Password */}
             <div className="animate-fadeInUp animate-delay-400">
-              <label className="block text-sm font-medium text-white mb-2">Password</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].password}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -173,7 +176,7 @@ const Signup = () => {
 
             {/* Confirm Password */}
             <div className="animate-fadeInUp animate-delay-500">
-              <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].confirmPassword}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -202,7 +205,7 @@ const Signup = () => {
                 required
               />
               <label className="ml-2 text-sm text-gray-300">
-                I agree to the <a href="#" className="text-primary hover:text-teal-300">Terms of Service</a> and <a href="#" className="text-primary hover:text-teal-300">Privacy Policy</a>
+                {translations[language].agreeToTerms} <a href="#" className="text-primary hover:text-teal-300">{translations[language].termsOfService}</a> {translations[language].and} <a href="#" className="text-primary hover:text-teal-300">{translations[language].privacyPolicy}</a>
               </label>
             </div>
 
@@ -211,16 +214,16 @@ const Signup = () => {
               type="submit"
               className="w-full px-8 py-3 backdrop-blur-xl bg-gradient-teal border border-white/30 text-white rounded-xl font-semibold hover:bg-teal-600 transition-all shadow-lg animate-scaleIn"
             >
-              Create {formData.role} Account <ArrowRight className="ml-2 w-5 h-5" />
+              {translations[language].createAccountBtn} <ArrowRight className="ml-2 w-5 h-5" />
             </button>
           </form>
 
           {/* Sign In Link */}
           <div className="mt-6 text-center animate-fadeInUp animate-delay-700">
             <p className="text-sm text-gray-300">
-              Already have an account?{' '}
+              {translations[language].alreadyHaveAccount}{' '}
               <Link to="/login" className="text-primary hover:text-teal-300 font-semibold">
-                Sign in
+                {translations[language].signInHere}
               </Link>
             </p>
           </div>
@@ -229,7 +232,7 @@ const Signup = () => {
         {/* Back to Home */}
         <div className="mt-8 text-center animate-fadeInUp animate-delay-800">
           <Link to="/" className="text-sm text-gray-400 hover:text-white flex items-center justify-center">
-            <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> Back to Home
+            <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> {translations[language].backToHome}
           </Link>
         </div>
       </div>

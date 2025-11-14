@@ -11,7 +11,9 @@ import Signup from "./pages/Signup";
 import AdminPanel from "./pages/AdminPanel";
 import ModernNav from "./components/ModernNav";
 import Footer from "./components/Footer";
+import ProfileSection from "./components/ProfileSection";
 import { useEffect } from "react";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -34,6 +36,7 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/profile" element={<ProfileSection />} />
       </Routes>
     </div>
   );
@@ -41,14 +44,16 @@ const AnimatedRoutes = () => {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <ModernNav />
-      
-      <div className="pt-20">
-        <AnimatedRoutes />
-      </div>
+    <LanguageProvider>
+      <BrowserRouter>
+        <ModernNav />
+        
+        <div className="pt-20">
+          <AnimatedRoutes />
+        </div>
 
-      <Footer />
-    </BrowserRouter>
+        <Footer />
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }

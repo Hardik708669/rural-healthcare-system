@@ -1,17 +1,20 @@
 import { Bell, Calendar, Activity, Baby, Pill, Syringe, Heart, Clock, CheckCircle } from 'lucide-react';
 import { theme } from '../theme';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 export default function Reminders() {
+  const { language } = useLanguage();
+  
   return (
     <div className="p-6 mt-20">
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className={`text-4xl font-bold text-white mb-4 ${theme.animation.fadeInUp}`}>
-          Health Reminders
+          {translations[language].healthReminders}
         </h1>
         <p className={`text-xl text-gray-300 max-w-3xl mx-auto ${theme.animation.fadeInUp} ${theme.animation.delay100}`}>
-          Never miss important health schedules and appointments. Our smart reminder system 
-          sends timely notifications to keep you and your family healthy.
+          {translations[language].neverMissHealthSchedules}
         </p>
       </div>
 
@@ -20,29 +23,29 @@ export default function Reminders() {
         {[
           { 
             icon: Calendar, 
-            title: 'Vaccination Reminders', 
-            desc: 'Immunization schedules',
+            title: translations[language].vaccinationReminders, 
+            desc: translations[language].immunizationSchedules,
             color: 'from-purple-500 to-indigo-600',
             count: '12'
           },
           { 
             icon: Activity, 
-            title: 'Medicine Reminders', 
-            desc: 'Daily medication alerts',
+            title: translations[language].medicineReminders, 
+            desc: translations[language].dailyMedicationAlerts,
             color: 'from-teal-500 to-green-600',
             count: '8'
           },
           { 
             icon: Baby, 
-            title: 'Prenatal Reminders', 
-            desc: 'Maternal health checks',
+            title: translations[language].prenatalReminders, 
+            desc: translations[language].maternalHealthChecks,
             color: 'from-pink-500 to-rose-600',
             count: '5'
           },
           { 
             icon: Heart, 
-            title: 'Health Checkups', 
-            desc: 'Regular health screenings',
+            title: translations[language].healthCheckups, 
+            desc: translations[language].regularHealthScreenings,
             color: 'from-blue-500 to-cyan-600',
             count: '3'
           }
@@ -62,7 +65,7 @@ export default function Reminders() {
             <h2 className="text-xl font-bold text-white mb-2">{category.title}</h2>
             <p className="text-gray-300 mb-4">{category.desc}</p>
             <button className={`${theme.button.ghost} w-full`}>
-              Manage {category.title.split(' ')[0]}
+              {translations[language].manage} {category.title.split(' ')[0]}
             </button>
           </div>
         ))}
@@ -71,39 +74,39 @@ export default function Reminders() {
       {/* Upcoming Reminders */}
       <div className={`${theme.glass.heavy} rounded-3xl p-6 mb-12`}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">Upcoming Reminders</h2>
+          <h2 className="text-2xl font-bold text-white">{translations[language].upcomingReminders}</h2>
           <button className={`${theme.button.outline} px-4 py-2`}>
-            View All
+            {translations[language].viewAll}
           </button>
         </div>
         
         <div className="space-y-4">
           {[
             { 
-              title: 'Polio Vaccination', 
-              time: 'Tomorrow, 9:00 AM', 
-              type: 'Vaccination',
+              title: translations[language].polioVaccination, 
+              time: translations[language].tomorrow9AM, 
+              type: translations[language].vaccination,
               icon: Syringe,
               color: 'purple'
             },
             { 
-              title: 'Blood Pressure Medication', 
-              time: 'Today, 8:00 AM', 
-              type: 'Medicine',
+              title: translations[language].bloodPressureMedication, 
+              time: translations[language].today8AM, 
+              type: translations[language].medicine,
               icon: Pill,
               color: 'teal'
             },
             { 
-              title: 'Prenatal Checkup', 
+              title: translations[language].prenatalCheckup, 
               time: 'Dec 15, 2025, 10:00 AM', 
-              type: 'Appointment',
+              type: translations[language].appointment,
               icon: Baby,
               color: 'pink'
             },
             { 
-              title: 'Annual Health Checkup', 
+              title: translations[language].annualHealthCheckup, 
               time: 'Dec 20, 2025, 2:00 PM', 
-              type: 'Checkup',
+              type: translations[language].checkup,
               icon: Heart,
               color: 'blue'
             }
@@ -139,27 +142,27 @@ export default function Reminders() {
 
       {/* Add Reminder Form */}
       <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-        <h2 className="text-2xl font-bold text-white mb-6">Add New Reminder</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{translations[language].addNewReminder}</h2>
         <form className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Reminder Title</label>
+            <label className="block text-sm font-medium text-white mb-2">{translations[language].reminderTitle}</label>
             <input
               type="text"
-              placeholder="e.g., Take Vitamin D"
+              placeholder={translations[language].takeVitaminD}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
             />
           </div>
           
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Date</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].date}</label>
               <input
                 type="date"
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Time</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].time}</label>
               <input
                 type="time"
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -168,20 +171,20 @@ export default function Reminders() {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Reminder Type</label>
+            <label className="block text-sm font-medium text-white mb-2">{translations[language].reminderType}</label>
             <select className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
-              <option>Medicine</option>
-              <option>Vaccination</option>
-              <option>Appointment</option>
-              <option>Checkup</option>
-              <option>Other</option>
+              <option>{translations[language].medicine}</option>
+              <option>{translations[language].vaccination}</option>
+              <option>{translations[language].appointment}</option>
+              <option>{translations[language].checkup}</option>
+              <option>{translations[language].other}</option>
             </select>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Repeat</label>
+            <label className="block text-sm font-medium text-white mb-2">{translations[language].repeat}</label>
             <div className="grid grid-cols-4 gap-2">
-              {['Once', 'Daily', 'Weekly', 'Monthly'].map((repeat, i) => (
+              {[translations[language].once, translations[language].daily, translations[language].weekly, translations[language].monthly].map((repeat, i) => (
                 <button
                   key={i}
                   type="button"
@@ -198,33 +201,33 @@ export default function Reminders() {
           </div>
           
           <button type="submit" className={`${theme.button.primary} w-full py-3`}>
-            Add Reminder
+            {translations[language].addReminder}
           </button>
         </form>
       </div>
       
       {/* Reminder Tips */}
       <div className={`${theme.glass.heavy} rounded-3xl p-8 mt-12`}>
-        <h2 className="text-3xl font-bold text-white text-center mb-4">Reminder Tips</h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-4">{translations[language].reminderTips}</h2>
         <p className="text-gray-300 text-center mb-8 max-w-2xl mx-auto">
-          Maximize the effectiveness of your health reminders with these best practices
+          {translations[language].maximizeEffectiveness}
         </p>
         
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
-              title: 'Be Specific',
-              desc: 'Include exact medication names and dosages in your reminders',
+              title: translations[language].beSpecific,
+              desc: translations[language].includeExactMedication,
               icon: Bell
             },
             {
-              title: 'Set Multiple Alerts',
-              desc: 'Create reminders at different times to ensure you don\'t miss important health tasks',
+              title: translations[language].setMultipleAlerts,
+              desc: translations[language].createRemindersAtDifferentTimes,
               icon: Clock
             },
             {
-              title: 'Track Completion',
-              desc: 'Mark reminders as complete to build healthy habits and track your progress',
+              title: translations[language].trackCompletion,
+              desc: translations[language].markRemindersAsComplete,
               icon: CheckCircle
             }
           ].map((tip, i) => (

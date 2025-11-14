@@ -1,17 +1,81 @@
-import React, { useState } from 'react';
-import { Brain, Mic, Camera, MessageSquare, FileText, AlertTriangle, Heart, Thermometer, Stethoscope } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Brain, Mic, Camera, MessageSquare, FileText, AlertTriangle, Heart, Thermometer, Stethoscope, Square } from 'lucide-react';
 import { theme } from '../theme';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
+import { initSpeechRecognition } from '../utils/speechRecognition';
 
 export default function SymptomChecker() {
+  const { language } = useLanguage();
   const [symptomsInput, setSymptomsInput] = useState('');
   const [severity, setSeverity] = useState('mild');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    const speechRecognition = initSpeechRecognition(
+      (transcript) => {
+        setSymptomsInput(prev => prev + (prev ? ' ' : '') + transcript);
+        setIsListening(false);
+      },
+      (error) => {
+        console.error('Speech recognition error:', error);
+        setIsListening(false);
+        alert(language === 'hi' 
+          ? `आवाज पहचान त्रुटि: ${error}` 
+          : `Speech recognition error: ${error}`);
+      },
+      () => {
+        setIsListening(false);
+      },
+      language
+    );
+    
+    if (speechRecognition) {
+      recognitionRef.current = speechRecognition;
+    }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [language]);
+
+  // Toggle voice recognition
+  const toggleVoiceRecognition = () => {
+    if (!recognitionRef.current) {
+      alert(language === 'hi' 
+        ? 'आपके ब्राउज़र में आवाज पहचान समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।' 
+        : 'Speech recognition is not supported in your browser. Please try Chrome or Edge.');
+      return;
+    }
+    
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        alert(language === 'hi' 
+          ? 'आवाज पहचान प्रारंभ करने में त्रुटि। कृपया पुनः प्रयास करें।' 
+          : 'Error starting voice recognition. Please try again.');
+      }
+    }
+  };
 
   // Function to send symptoms to backend
   const sendSymptoms = async () => {
     if (!symptomsInput.trim()) {
-      alert('Please enter your symptoms');
+      alert(language === 'hi' 
+        ? 'कृपया अपने लक्षण दर्ज करें' 
+        : 'Please enter your symptoms');
       return;
     }
 
@@ -34,7 +98,9 @@ export default function SymptomChecker() {
       console.log(data);
     } catch (error) {
       console.error('Error sending symptoms:', error);
-      alert('Error analyzing symptoms. Please try again.');
+      alert(language === 'hi' 
+        ? 'लक्षणों का विश्लेषण करने में त्रुटि। कृपया पुनः प्रयास करें।' 
+        : 'Error analyzing symptoms. Please try again.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -45,11 +111,10 @@ export default function SymptomChecker() {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className={`text-4xl font-bold text-white mb-4 ${theme.animation.fadeInUp}`}>
-          AI Symptom Checker
+          {translations[language].aiSymptomChecker}
         </h1>
         <p className={`text-xl text-gray-300 max-w-3xl mx-auto ${theme.animation.fadeInUp} ${theme.animation.delay100}`}>
-          Describe your symptoms and get instant AI-powered health insights. Our advanced algorithm 
-          analyzes your input to provide accurate health assessments and recommendations.
+          {translations[language].describeSymptoms}
         </p>
       </div>
 
@@ -57,38 +122,40 @@ export default function SymptomChecker() {
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Left Column - Symptom Input Methods */}
         <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-          <h2 className="text-2xl font-bold text-white mb-6">How would you like to describe your symptoms?</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{translations[language].describeSymptoms}</h2>
           
           <div className="space-y-4">
             {[
               { 
                 icon: MessageSquare, 
-                title: 'Text Input', 
-                desc: 'Type your symptoms in detail',
+                title: translations[language].textInput, 
+                desc: translations[language].typeSymptoms,
                 color: 'from-teal-500 to-green-600'
               },
               { 
-                icon: Mic, 
-                title: 'Voice Input', 
-                desc: 'Speak your symptoms naturally',
-                color: 'from-purple-500 to-indigo-600'
+                icon: isListening ? Square : Mic, 
+                title: isListening ? (language === 'hi' ? 'रोकें' : 'Stop') : translations[language].voiceInput, 
+                desc: isListening ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop speaking') : translations[language].speakSymptoms,
+                color: isListening ? 'from-red-500 to-orange-600' : 'from-purple-500 to-indigo-600',
+                action: toggleVoiceRecognition
               },
               { 
                 icon: Camera, 
-                title: 'Image Upload', 
-                desc: 'Upload photos of visible symptoms',
+                title: translations[language].imageUpload, 
+                desc: translations[language].uploadPhotos,
                 color: 'from-blue-500 to-cyan-600'
               },
               { 
                 icon: FileText, 
-                title: 'Chat Interface', 
-                desc: 'Chat with our AI health assistant',
+                title: translations[language].chatInterface, 
+                desc: translations[language].chatWithAI,
                 color: 'from-pink-500 to-rose-600'
               }
             ].map((method, i) => (
               <button 
                 key={i} 
-                className={`w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all text-left ${theme.animation.fadeInUp} animate-delay-${(i + 1) * 100}`}
+                onClick={method.action ? method.action : null}
+                className={`w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all text-left ${theme.animation.fadeInUp} animate-delay-${(i + 1) * 100} ${method.action ? 'cursor-pointer' : 'cursor-default'}`}
               >
                 <div className={`w-12 h-12 bg-gradient-to-br ${method.color} rounded-lg flex items-center justify-center`}>
                   <method.icon className="w-6 h-6 text-white" />
@@ -97,30 +164,35 @@ export default function SymptomChecker() {
                   <div className="text-white font-medium">{method.title}</div>
                   <div className="text-gray-400 text-sm">{method.desc}</div>
                 </div>
+                {isListening && method.title === (language === 'hi' ? 'रोकें' : 'Stop') && (
+                  <div className="ml-auto">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
               </button>
             ))}
           </div>
           
           {/* Text Input Section */}
           <div className="mt-8">
-            <h3 className="text-xl font-bold text-white mb-4">Describe Your Symptoms</h3>
+            <h3 className="text-xl font-bold text-white mb-4">{translations[language].describeSymptoms}</h3>
             <textarea
               value={symptomsInput}
               onChange={(e) => setSymptomsInput(e.target.value)}
-              placeholder="Please describe your symptoms in detail..."
+              placeholder={translations[language].typeSymptoms}
               className="w-full h-32 p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
             
             <div className="mt-4">
-              <label className="text-white font-medium mb-2 block">Severity Level</label>
+              <label className="text-white font-medium mb-2 block">{translations[language].severity}</label>
               <select
                 value={severity}
                 onChange={(e) => setSeverity(e.target.value)}
                 className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="mild">Mild</option>
-                <option value="moderate">Moderate</option>
-                <option value="severe">Severe</option>
+                <option value="mild">{translations[language].mild}</option>
+                <option value="moderate">{translations[language].moderate}</option>
+                <option value="severe">{translations[language].severe}</option>
               </select>
             </div>
             
@@ -132,10 +204,10 @@ export default function SymptomChecker() {
               {isAnalyzing ? (
                 <span className="flex items-center justify-center">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Analyzing...
+                  {translations[language].analyzing}
                 </span>
               ) : (
-                'Analyze Symptoms'
+                translations[language].analyzeSymptoms
               )}
             </button>
           </div>
@@ -144,20 +216,20 @@ export default function SymptomChecker() {
         {/* Right Column - AI Analysis Preview */}
         <div className="space-y-6">
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-            <h2 className="text-2xl font-bold text-white mb-4">AI Analysis Preview</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">{translations[language].aiAnalysis}</h2>
             
             <div className="bg-white/5 rounded-2xl p-4 mb-4">
               <div className="flex items-start gap-3">
                 <Brain className="w-8 h-8 text-purple mt-1" />
                 <div>
-                  <div className="font-semibold text-white mb-2">AI Analysis</div>
+                  <div className="font-semibold text-white mb-2">{translations[language].aiAnalysis}</div>
                   <div className="text-gray-300 text-sm">
                     {analysisResult ? (
                       <div>
-                        <p>{analysisResult.analysis || "Based on your symptoms: fever, headache, and body aches, possible conditions include viral infection or malaria. Urgency level: Medium. Recommendation: Consult a doctor within 24 hours and stay hydrated."}</p>
+                        <p>{analysisResult.analysis || translations[language].basedOnSymptoms}</p>
                         {analysisResult.recommendations && (
                           <div className="mt-2">
-                            <strong>Recommendations:</strong>
+                            <strong>{translations[language].recommendations}:</strong>
                             <ul className="list-disc pl-5 mt-1">
                               {analysisResult.recommendations.map((rec, i) => (
                                 <li key={i}>{rec}</li>
@@ -167,7 +239,7 @@ export default function SymptomChecker() {
                         )}
                       </div>
                     ) : (
-                      "Based on your symptoms: fever, headache, and body aches, possible conditions include viral infection or malaria. Urgency level: Medium. Recommendation: Consult a doctor within 24 hours and stay hydrated."
+                      translations[language].basedOnSymptoms
                     )}
                   </div>
                 </div>
@@ -176,13 +248,13 @@ export default function SymptomChecker() {
             
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-purple/20 border border-purple/30 rounded-xl p-3">
-                <div className="text-purple font-medium">Urgency</div>
+                <div className="text-purple font-medium">{translations[language].urgency}</div>
                 <div className="text-white">
                   {analysisResult?.urgency || "Medium"}
                 </div>
               </div>
               <div className="bg-teal/20 border border-teal/30 rounded-xl p-3">
-                <div className="text-teal font-medium">Confidence</div>
+                <div className="text-teal font-medium">{translations[language].confidence}</div>
                 <div className="text-white">
                   {analysisResult?.confidence ? `${analysisResult.confidence}%` : "85%"}
                 </div>
@@ -194,13 +266,20 @@ export default function SymptomChecker() {
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-              <h2 className="text-2xl font-bold text-white">Emergency Detection</h2>
+              <h2 className="text-2xl font-bold text-white">{translations[language].emergencyDetection}</h2>
             </div>
             <p className="text-gray-300 mb-4">
-              Our AI system automatically detects emergency symptoms and provides immediate guidance.
+              {translations[language].ourAISystem}
             </p>
             <div className="grid grid-cols-3 gap-3">
-              {['Chest pain', 'Difficulty breathing', 'Severe bleeding', 'High fever', 'Loss of consciousness', 'Severe headache'].map((symptom, i) => (
+              {[
+                translations[language].chestPain,
+                translations[language].difficultyBreathing,
+                translations[language].severeBleeding,
+                translations[language].highFever,
+                translations[language].lossOfConsciousness,
+                translations[language].severeHeadache
+              ].map((symptom, i) => (
                 <div 
                   key={i} 
                   className="bg-red-500/20 border border-red-500/30 rounded-lg p-2 text-center text-sm"
@@ -215,19 +294,19 @@ export default function SymptomChecker() {
       
       {/* Common Symptoms Section */}
       <div className={`${theme.glass.heavy} rounded-3xl p-8 mt-12`}>
-        <h2 className="text-3xl font-bold text-white text-center mb-4">Common Symptoms</h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-4">{translations[language].commonSymptoms}</h2>
         <p className="text-gray-300 text-center mb-8 max-w-2xl mx-auto">
-          Select from common symptoms to quickly get started with our AI symptom checker
+          {translations[language].selectCommonSymptoms}
         </p>
         
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { icon: Thermometer, symptom: 'Fever' },
-            { icon: Heart, symptom: 'Chest Pain' },
-            { icon: Stethoscope, symptom: 'Cough' },
-            { icon: AlertTriangle, symptom: 'Headache' },
-            { icon: Brain, symptom: 'Dizziness' },
-            { icon: Heart, symptom: 'Fatigue' }
+            { icon: Thermometer, symptom: translations[language].fever },
+            { icon: Heart, symptom: translations[language].chestPain },
+            { icon: Stethoscope, symptom: translations[language].cough },
+            { icon: AlertTriangle, symptom: translations[language].headache },
+            { icon: Brain, symptom: translations[language].dizziness },
+            { icon: Heart, symptom: translations[language].fatigue }
           ].map((item, i) => (
             <button 
               key={i} 
@@ -242,26 +321,26 @@ export default function SymptomChecker() {
       
       {/* Health Tips Section */}
       <div className={`${theme.glass.heavy} rounded-3xl p-8 mt-8`}>
-        <h2 className="text-3xl font-bold text-white text-center mb-4">Health Tips</h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-4">{translations[language].healthTips}</h2>
         <p className="text-gray-300 text-center mb-8 max-w-2xl mx-auto">
-          General health advice to keep you and your community healthy
+          {translations[language].generalHealthAdvice}
         </p>
         
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
-              title: 'Stay Hydrated',
-              desc: 'Drink at least 8 glasses of water daily to maintain good health',
+              title: translations[language].stayHydrated,
+              desc: translations[language].drinkWater,
               icon: Thermometer
             },
             {
-              title: 'Balanced Diet',
-              desc: 'Include fruits, vegetables, and whole grains in your daily meals',
+              title: translations[language].balancedDiet,
+              desc: translations[language].includeFruits,
               icon: Heart
             },
             {
-              title: 'Regular Exercise',
-              desc: 'Engage in at least 30 minutes of physical activity daily',
+              title: translations[language].regularExercise,
+              desc: translations[language].engagePhysical,
               icon: Stethoscope
             }
           ].map((tip, i) => (

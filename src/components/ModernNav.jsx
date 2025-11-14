@@ -4,21 +4,26 @@ import { theme } from '../theme';
 import { Menu, X, User } from 'lucide-react';
 import NotificationIcon from './NotificationIcon';
 import UserProfile from './UserProfile';
+import LanguageSelector from './LanguageSelector';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const ModernNav = () => {
   const location = useLocation();
+  const { language } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const isActive = (path) => location.pathname === path;
   
+  // Navigation items with translations
   const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Telemedicine', path: '/telemedicine' },
-    { name: 'AI Symptom', path: '/symptoms' },
-    { name: 'Reminders', path: '/reminders' },
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'About', path: '/about' }
+    { name: translations[language].home, path: '/' },
+    { name: translations[language].telemedicine, path: '/telemedicine' },
+    { name: translations[language].aiSymptom, path: '/symptoms' },
+    { name: translations[language].reminders, path: '/reminders' },
+    { name: translations[language].dashboard, path: '/dashboard' },
+    { name: translations[language].about, path: '/about' }
   ];
 
   // Check authentication status
@@ -80,21 +85,22 @@ const ModernNav = () => {
             ))}
           </div>
           
-          {/* Auth Buttons and Notification Icon */}
+          {/* Auth Buttons, Notification Icon and Language Selector */}
           <div className="hidden md:flex items-center gap-4">
+            <LanguageSelector />
             <NotificationIcon />
             {isAuthenticated ? (
               <UserProfile />
             ) : (
               <>
                 <Link to="/login" className={`px-4 py-2 text-white hover:text-primary transition-colors duration-300 transform hover:scale-105`}>
-                  Sign In
+                  {translations[language].signIn}
                 </Link>
                 <Link 
                   to="/signup" 
                   className={`px-4 py-2 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg text-sm font-semibold hover:from-teal-600 hover:to-green-700 transition-all duration-300 shadow-lg ${theme.animation.scaleIn} hover:shadow-xl transform hover:scale-105 active:scale-95`}
                 >
-                  Sign Up
+                  {translations[language].signUp}
                 </Link>
               </>
             )}
@@ -135,14 +141,14 @@ const ModernNav = () => {
                       className="flex-1 px-4 py-2 text-center text-white border border-white/30 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Sign In
+                      {translations[language].signIn}
                     </Link>
                     <Link 
                       to="/signup" 
                       className="flex-1 px-4 py-2 text-center bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Sign Up
+                      {translations[language].signUp}
                     </Link>
                   </>
                 )}

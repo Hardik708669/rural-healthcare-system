@@ -2,48 +2,51 @@ import React, { useState } from 'react';
 import { 
   Users, Activity, AlertTriangle, Calendar, Brain, MapPin, Settings, FileText, 
   Download, Plus, Edit, Trash2, Phone, Bell, TrendingUp, Search, Filter, 
-  Eye, CheckCircle, XCircle, User, Heart, Stethoscope
+  Eye, CheckCircle, XCircle, User, Heart, Stethoscope, Shield
 } from 'lucide-react';
 import { theme } from '../theme';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const AdminPanel = () => {
+  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: Activity },
-    { id: 'users', label: 'User Management', icon: Users },
-    { id: 'symptoms', label: 'AI Symptom Reports', icon: Brain },
-    { id: 'telemedicine', label: 'Telemedicine', icon: Phone },
-    { id: 'vaccination', label: 'Vaccination', icon: Calendar },
-    { id: 'reminders', label: 'Reminders', icon: Bell },
-    { id: 'analytics', label: 'Village Analytics', icon: MapPin },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'dashboard', label: translations[language].dashboard, icon: Activity },
+    { id: 'users', label: translations[language].userManagement, icon: Users },
+    { id: 'symptoms', label: translations[language].aiSymptomReports, icon: Brain },
+    { id: 'telemedicine', label: translations[language].telemedicine, icon: Phone },
+    { id: 'vaccination', label: translations[language].vaccination, icon: Calendar },
+    { id: 'reminders', label: translations[language].reminders, icon: Bell },
+    { id: 'analytics', label: translations[language].villageAnalytics, icon: MapPin },
+    { id: 'reports', label: translations[language].reports, icon: FileText },
+    { id: 'settings', label: translations[language].settings, icon: Settings }
   ];
 
   const summaryCards = [
-    { title: 'Total Patients', value: '1,247', icon: Users, color: 'teal' },
-    { title: "Today's Teleconsultations", value: '34', icon: Phone, color: 'blue' },
-    { title: 'High-Risk Cases', value: '18', icon: AlertTriangle, color: 'red' },
-    { title: 'Vaccinations Due Today', value: '56', icon: Calendar, color: 'purple' },
-    { title: 'AI Symptom Checks Today', value: '89', icon: Brain, color: 'indigo' },
-    { title: 'Villages Monitored', value: '12', icon: MapPin, color: 'green' }
+    { title: translations[language].totalPatients, value: '1,247', icon: Users, color: 'teal' },
+    { title: translations[language].todaysTeleconsultations, value: '34', icon: Phone, color: 'blue' },
+    { title: translations[language].highRiskCases, value: '18', icon: AlertTriangle, color: 'red' },
+    { title: translations[language].vaccinationsDueToday, value: '56', icon: Calendar, color: 'purple' },
+    { title: translations[language].aiSymptomChecksToday, value: '89', icon: Brain, color: 'indigo' },
+    { title: translations[language].villagesMonitored, value: '12', icon: MapPin, color: 'green' }
   ];
 
   const users = [
-    { id: 1, name: 'Dr. Priya Sharma', role: 'Doctor', status: 'active', lastActive: '2 hours ago', avatar: 'PS' },
-    { id: 2, name: 'Sunita Devi', role: 'Health Worker', status: 'active', lastActive: '30 mins ago', avatar: 'SD' },
-    { id: 3, name: 'Ramesh Kumar', role: 'Patient', status: 'active', lastActive: '1 day ago', avatar: 'RK' },
-    { id: 4, name: 'Dr. Rajesh Patel', role: 'Doctor', status: 'inactive', lastActive: '5 days ago', avatar: 'RP' },
-    { id: 5, name: 'Anita Sharma', role: 'Patient', status: 'active', lastActive: '3 hours ago', avatar: 'AS' }
+    { id: 1, name: translations[language].drPriyaSharma, role: translations[language].doctor, status: translations[language].active, lastActive: translations[language].hoursAgo2, avatar: 'PS' },
+    { id: 2, name: translations[language].sunitaDevi, role: translations[language].healthWorker, status: translations[language].active, lastActive: translations[language].minsAgo30, avatar: 'SD' },
+    { id: 3, name: translations[language].rameshKumar, role: translations[language].patient, status: translations[language].active, lastActive: translations[language].dayAgo1, avatar: 'RK' },
+    { id: 4, name: translations[language].drRajeshPatel, role: translations[language].doctor, status: translations[language].inactive, lastActive: translations[language].daysAgo5, avatar: 'RP' },
+    { id: 5, name: translations[language].anitaSharma, role: translations[language].patient, status: translations[language].active, lastActive: translations[language].hoursAgo3, avatar: 'AS' }
   ];
 
   const symptomReports = [
-    { id: 1, patient: 'Sita Devi', symptoms: 'Fever + Vomiting', risk: 'High', time: '10:30 AM', status: 'pending' },
-    { id: 2, patient: 'Ramesh Kumar', symptoms: 'Body Pain', risk: 'Low', time: '11:15 AM', status: 'resolved' },
-    { id: 3, patient: 'Anita Sharma', symptoms: 'Chest Pain', risk: 'Critical', time: '09:45 AM', status: 'pending' },
-    { id: 4, patient: 'Rajesh Patel', symptoms: 'Headache + Dizziness', risk: 'Medium', time: '08:20 AM', status: 'in-progress' }
+    { id: 1, patient: translations[language].sitaDevi, symptoms: translations[language].feverVomiting, risk: translations[language].high, time: '10:30 AM', status: translations[language].pending },
+    { id: 2, patient: translations[language].rameshKumar, symptoms: translations[language].bodyPain, risk: translations[language].low, time: '11:15 AM', status: translations[language].resolved },
+    { id: 3, patient: translations[language].anitaSharma, symptoms: translations[language].chestPain, risk: translations[language].critical, time: '09:45 AM', status: translations[language].pending },
+    { id: 4, patient: translations[language].rajeshPatel, symptoms: translations[language].headacheDizziness, risk: translations[language].medium, time: '08:20 AM', status: translations[language].inProgress }
   ];
 
   return (
@@ -51,8 +54,8 @@ const AdminPanel = () => {
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Admin Panel</h1>
-          <p className="text-gray-300">Manage healthcare system operations</p>
+          <h1 className="text-4xl font-bold text-white mb-2">{translations[language].adminPanel}</h1>
+          <p className="text-gray-300">{translations[language].manageHealthcareSystem}</p>
         </div>
 
         {/* Tabs */}
@@ -101,14 +104,14 @@ const AdminPanel = () => {
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Recent Activity */}
               <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-                <h3 className="text-xl font-bold text-white mb-4">Recent Activity</h3>
+                <h3 className="text-xl font-bold text-white mb-4">{translations[language].recentActivity}</h3>
                 <div className="space-y-3">
                   {[
-                    { text: 'New patient registered: Sita Devi', time: '5 mins ago', icon: Users },
-                    { text: 'Teleconsultation completed with Dr. Patel', time: '15 mins ago', icon: Phone },
-                    { text: 'High-risk case detected in Birgaon village', time: '30 mins ago', icon: AlertTriangle },
-                    { text: 'Vaccination drive scheduled for tomorrow', time: '1 hour ago', icon: Calendar },
-                    { text: 'AI symptom check completed for 5 patients', time: '2 hours ago', icon: Brain }
+                    { text: translations[language].newPatientRegistered, time: translations[language].minsAgo5, icon: Users },
+                    { text: translations[language].teleconsultationCompleted, time: translations[language].minsAgo15, icon: Phone },
+                    { text: translations[language].highRiskCaseDetected, time: translations[language].minsAgo30, icon: AlertTriangle },
+                    { text: translations[language].vaccinationDriveScheduled, time: translations[language].hourAgo1, icon: Calendar },
+                    { text: translations[language].aiSymptomCheckCompleted, time: translations[language].hoursAgo2, icon: Brain }
                   ].map((activity, i) => (
                     <div 
                       key={i} 
@@ -130,13 +133,13 @@ const AdminPanel = () => {
 
               {/* Quick Actions */}
               <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-                <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
+                <h3 className="text-xl font-bold text-white mb-4">{translations[language].quickActions}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: 'Add User', icon: Plus },
-                    { label: 'Export Report', icon: Download },
-                    { label: 'View Analytics', icon: TrendingUp },
-                    { label: 'Settings', icon: Settings }
+                    { label: translations[language].addUser, icon: Plus },
+                    { label: translations[language].exportReport, icon: Download },
+                    { label: translations[language].viewAnalytics, icon: TrendingUp },
+                    { label: translations[language].settings, icon: Settings }
                   ].map((action, i) => (
                     <button 
                       key={i} 
@@ -156,20 +159,20 @@ const AdminPanel = () => {
         {activeTab === 'users' && (
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-              <h2 className="text-2xl font-bold text-white">User Management</h2>
+              <h2 className="text-2xl font-bold text-white">{translations[language].userManagement}</h2>
               <div className="flex gap-3 w-full md:w-auto">
                 <div className="relative flex-1 md:flex-none">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search users..."
+                    placeholder={translations[language].searchUsers}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
                 <button className={`${theme.button.primary} px-4 py-2 rounded-lg flex items-center gap-2`}>
-                  <Plus className="w-4 h-4" />Add New User
+                  <Plus className="w-4 h-4" />{translations[language].addNewUser}
                 </button>
               </div>
             </div>
@@ -178,11 +181,11 @@ const AdminPanel = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/20">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">User</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Role</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Status</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Last Active</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Actions</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">{translations[language].user}</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">{translations[language].role}</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">{translations[language].status}</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">{translations[language].lastActive}</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">{translations[language].actions}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -205,7 +208,7 @@ const AdminPanel = () => {
                       </td>
                       <td className="py-3 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          user.status === 'active' 
+                          user.status === translations[language].active 
                             ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
                             : 'bg-white/10 text-gray-300 border border-white/20'
                         }`}>
@@ -238,20 +241,20 @@ const AdminPanel = () => {
         {activeTab === 'symptoms' && (
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-              <h2 className="text-2xl font-bold text-white">AI Symptom Reports</h2>
+              <h2 className="text-2xl font-bold text-white">{translations[language].aiSymptomReports}</h2>
               <div className="flex gap-3 w-full md:w-auto">
                 <div className="relative flex-1 md:flex-none">
                   <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <select className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                    <option>All Risk Levels</option>
-                    <option>Critical</option>
-                    <option>High</option>
-                    <option>Medium</option>
-                    <option>Low</option>
+                    <option>{translations[language].allRiskLevels}</option>
+                    <option>{translations[language].critical}</option>
+                    <option>{translations[language].high}</option>
+                    <option>{translations[language].medium}</option>
+                    <option>{translations[language].low}</option>
                   </select>
                 </div>
                 <button className={`${theme.button.primary} px-4 py-2 rounded-lg flex items-center gap-2`}>
-                  <Download className="w-4 h-4" />Export
+                  <Download className="w-4 h-4" />{translations[language].export}
                 </button>
               </div>
             </div>
@@ -268,21 +271,21 @@ const AdminPanel = () => {
                       <div className="text-sm text-gray-300 mb-2">{report.symptoms}</div>
                       <div className="flex items-center gap-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          report.risk === 'Critical' 
+                          report.risk === translations[language].critical 
                             ? 'bg-red-500/20 text-red-300 border border-red-500/30' 
-                            : report.risk === 'High' 
+                            : report.risk === translations[language].high 
                               ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' 
-                              : report.risk === 'Medium' 
+                              : report.risk === translations[language].medium 
                                 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' 
                                 : 'bg-green-500/20 text-green-300 border border-green-500/30'
                         }`}>
-                          {report.risk} Risk
+                          {report.risk} {translations[language].risk}
                         </span>
                         <span className="text-xs text-gray-400">{report.time}</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          report.status === 'pending' 
+                          report.status === translations[language].pending 
                             ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' 
-                            : report.status === 'in-progress' 
+                            : report.status === translations[language].inProgress 
                               ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
                               : 'bg-green-500/20 text-green-300 border border-green-500/30'
                         }`}>
@@ -292,10 +295,10 @@ const AdminPanel = () => {
                     </div>
                     <div className="flex gap-2">
                       <button className="px-3 py-1 bg-green-500/90 border border-green-500 text-white rounded text-xs font-medium hover:shadow-lg">
-                        Mark Resolved
+                        {translations[language].markResolved}
                       </button>
                       <button className="px-3 py-1 bg-primary/90 border border-primary text-white rounded text-xs font-medium hover:shadow-lg">
-                        Assign Doctor
+                        {translations[language].assignDoctor}
                       </button>
                     </div>
                   </div>
@@ -308,33 +311,33 @@ const AdminPanel = () => {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-            <h2 className="text-2xl font-bold text-white mb-6">Settings & Configuration</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">{translations[language].settingsConfiguration}</h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">App Theme</label>
+                  <label className="block text-sm font-medium text-white mb-2">{translations[language].appTheme}</label>
                   <select className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-primary">
-                    <option>Light</option>
-                    <option>Dark</option>
+                    <option>{translations[language].light}</option>
+                    <option>{translations[language].dark}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Language Settings</label>
+                  <label className="block text-sm font-medium text-white mb-2">{translations[language].languageSettings}</label>
                   <select className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl focus:ring-2 focus:ring-primary">
-                    <option>English</option>
-                    <option>Hindi</option>
-                    <option>Telugu</option>
+                    <option>{translations[language].english}</option>
+                    <option>{translations[language].hindi}</option>
+                    <option>{translations[language].telugu}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Notification Preferences</label>
+                  <label className="block text-sm font-medium text-white mb-2">{translations[language].notificationPreferences}</label>
                   <div className="space-y-3">
                     {[
-                      { label: 'Email Notifications', enabled: true },
-                      { label: 'SMS Alerts', enabled: true },
-                      { label: 'Push Notifications', enabled: false }
+                      { label: translations[language].emailNotifications, enabled: true },
+                      { label: translations[language].smsAlerts, enabled: true },
+                      { label: translations[language].pushNotifications, enabled: false }
                     ].map((pref, i) => (
                       <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                         <span className="text-gray-300">{pref.label}</span>
@@ -349,30 +352,30 @@ const AdminPanel = () => {
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">Data Privacy</label>
+                  <label className="block text-sm font-medium text-white mb-2">{translations[language].dataPrivacy}</label>
                   <div className="p-4 bg-white/5 rounded-lg">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-green-600 rounded-lg flex items-center justify-center">
                         <Shield className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <div className="text-white font-medium">GDPR Compliance</div>
-                        <div className="text-sm text-gray-400">All data is encrypted and stored securely</div>
+                        <div className="text-white font-medium">{translations[language].gdprCompliance}</div>
+                        <div className="text-sm text-gray-400">{translations[language].allDataEncrypted}</div>
                       </div>
                     </div>
                     <button className={`${theme.button.outline} w-full py-2`}>
-                      View Privacy Policy
+                      {translations[language].viewPrivacyPolicy}
                     </button>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">System Information</label>
+                  <label className="block text-sm font-medium text-white mb-2">{translations[language].systemInformation}</label>
                   <div className="space-y-3">
                     {[
-                      { label: 'Version', value: 'v2.1.4' },
-                      { label: 'Last Update', value: 'Nov 14, 2025' },
-                      { label: 'Uptime', value: '99.8%' }
+                      { label: translations[language].version, value: 'v2.1.4' },
+                      { label: translations[language].lastUpdate, value: 'Nov 14, 2025' },
+                      { label: translations[language].uptime, value: '99.8%' }
                     ].map((info, i) => (
                       <div key={i} className="flex justify-between p-3 bg-white/5 rounded-lg">
                         <span className="text-gray-300">{info.label}</span>
@@ -386,7 +389,7 @@ const AdminPanel = () => {
             
             <div className="mt-8 pt-6 border-t border-white/20">
               <button className={`${theme.button.primary} px-6 py-3`}>
-                Save Settings
+                {translations[language].saveSettings}
               </button>
             </div>
           </div>

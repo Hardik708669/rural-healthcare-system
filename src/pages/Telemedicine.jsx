@@ -2,8 +2,11 @@ import { Video, User, Calendar, Phone, Clock, Monitor, Shield, X } from 'lucide-
 import { theme } from '../theme';
 import { useState } from 'react';
 import VideoCall from '../components/VideoCall';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 export default function Telemedicine() {
+  const { language } = useLanguage();
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [showVideoCall, setShowVideoCall] = useState(false);
@@ -11,25 +14,25 @@ export default function Telemedicine() {
   const doctors = [
     { 
       id: 1,
-      name: 'Dr. Rajesh Kumar', 
-      specialty: 'General Physician', 
-      experience: '15 years',
+      name: translations[language].drRajeshKumar, 
+      specialty: translations[language].generalPhysician, 
+      experience: translations[language].experience,
       rating: 4.8,
       avatar: 'RK'
     },
     { 
       id: 2,
-      name: 'Dr. Sunita Devi', 
-      specialty: 'Pediatrics', 
-      experience: '12 years',
+      name: translations[language].drSunitaDevi, 
+      specialty: translations[language].pediatrics, 
+      experience: translations[language].experience,
       rating: 4.9,
       avatar: 'SD'
     },
     { 
       id: 3,
-      name: 'Dr. Anil Patel', 
-      specialty: 'Cardiologist', 
-      experience: '20 years',
+      name: translations[language].drAnilPatel, 
+      specialty: translations[language].cardiologist, 
+      experience: translations[language].experience,
       rating: 4.7,
       avatar: 'AP'
     }
@@ -40,9 +43,9 @@ export default function Telemedicine() {
   const handleBookAppointment = () => {
     if (selectedDoctor && selectedTime) {
       // In a real app, this would book the appointment
-      alert(`Appointment booked with ${selectedDoctor.name} at ${selectedTime}`);
+      alert(`${translations[language].appointmentBookedWith} ${selectedDoctor.name} ${translations[language].at} ${selectedTime}`);
     } else {
-      alert('Please select both a doctor and a time slot');
+      alert(translations[language].selectDoctorAndTime);
     }
   };
 
@@ -50,7 +53,7 @@ export default function Telemedicine() {
     if (selectedDoctor) {
       setShowVideoCall(true);
     } else {
-      alert('Please select a doctor first');
+      alert(translations[language].selectDoctorFirst);
     }
   };
 
@@ -59,11 +62,10 @@ export default function Telemedicine() {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className={`text-4xl font-bold text-white mb-4 ${theme.animation.fadeInUp}`}>
-          Telemedicine Consultations
+          {translations[language].telemedicineConsultation}
         </h1>
         <p className={`text-xl text-gray-300 max-w-3xl mx-auto ${theme.animation.fadeInUp} ${theme.animation.delay100}`}>
-          Connect with healthcare professionals remotely through secure video consultations, 
-          available 24/7 for all your medical needs.
+          {translations[language].connectWithDoctors}
         </p>
       </div>
 
@@ -74,7 +76,7 @@ export default function Telemedicine() {
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
             <div className="flex items-center gap-3 mb-6">
               <User className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl font-bold text-white">Select Doctor</h2>
+              <h2 className="text-2xl font-bold text-white">{translations[language].selectDoctor}</h2>
             </div>
             
             <div className="space-y-4">
@@ -103,12 +105,12 @@ export default function Telemedicine() {
           
           {/* Features Card */}
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-            <h3 className="text-xl font-bold text-white mb-4">Why Telemedicine?</h3>
+            <h3 className="text-xl font-bold text-white mb-4">{translations[language].whyTelemedicine}</h3>
             <div className="space-y-4">
               {[
-                { icon: Monitor, text: 'High-quality video calls' },
-                { icon: Shield, text: 'End-to-end encryption' },
-                { icon: Clock, text: '24/7 availability' }
+                { icon: Monitor, text: translations[language].highQualityVideo },
+                { icon: Shield, text: translations[language].endToEndEncryption },
+                { icon: Clock, text: translations[language].availability247 }
               ].map((feature, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <feature.icon className="w-5 h-5 text-primary" />
@@ -124,17 +126,17 @@ export default function Telemedicine() {
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
             <div className="flex items-center gap-3 mb-6">
               <Calendar className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl font-bold text-white">Book Appointment</h2>
+              <h2 className="text-2xl font-bold text-white">{translations[language].bookAppointment}</h2>
             </div>
             
             <div className="space-y-6">
               <div className="bg-white/5 rounded-2xl p-4">
-                <div className="text-white font-medium">Today</div>
+                <div className="text-white font-medium">{translations[language].today}</div>
                 <div className="text-gray-400 text-sm">November 14, 2025</div>
               </div>
               
               <div>
-                <h3 className="text-gray-300 mb-3">Available Time Slots</h3>
+                <h3 className="text-gray-300 mb-3">{translations[language].availableTimeSlots}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {timeSlots.map((time, i) => (
                     <button 
@@ -157,18 +159,18 @@ export default function Telemedicine() {
                 className={`${theme.button.primary} w-full py-3`}
                 disabled={!selectedDoctor || !selectedTime}
               >
-                Confirm Booking
+                {translations[language].confirmBooking}
               </button>
             </div>
           </div>
           
           {/* Upcoming Appointments */}
           <div className={`${theme.glass.heavy} rounded-3xl p-6`}>
-            <h3 className="text-xl font-bold text-white mb-4">Upcoming Appointments</h3>
+            <h3 className="text-xl font-bold text-white mb-4">{translations[language].upcomingAppointments}</h3>
             <div className="space-y-4">
               {[
-                { doctor: 'Dr. Sunita Devi', time: 'Tomorrow, 10:00 AM', type: 'Pediatric Checkup' },
-                { doctor: 'Dr. Rajesh Kumar', time: 'Dec 15, 2025, 3:00 PM', type: 'General Consultation' }
+                { doctor: translations[language].drSunitaDevi, time: translations[language].tomorrow10AM, type: translations[language].pediatricCheckup },
+                { doctor: translations[language].drRajeshKumar, time: 'Dec 15, 2025, 3:00 PM', type: translations[language].generalConsultation }
               ].map((appointment, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                   <div>
@@ -187,7 +189,7 @@ export default function Telemedicine() {
           <div className={`${theme.glass.heavy} rounded-3xl p-6 h-full`}>
             <div className="flex items-center gap-3 mb-6">
               <Video className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl font-bold text-white">Video Consultation</h2>
+              <h2 className="text-2xl font-bold text-white">{translations[language].videoConsultation}</h2>
             </div>
             
             {selectedDoctor ? (
@@ -200,21 +202,21 @@ export default function Telemedicine() {
                     </div>
                     <div className="text-white font-medium">{selectedDoctor.name}</div>
                     <div className="text-gray-300 text-sm mt-1">{selectedDoctor.specialty}</div>
-                    <div className="text-gray-400 text-sm mt-2">Ready for video consultation</div>
+                    <div className="text-gray-400 text-sm mt-2">{translations[language].readyForVideoConsultation}</div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <button className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/80 hover:bg-red-600 rounded-xl text-white font-medium transition-all">
                     <Phone className="w-5 h-5" />
-                    Voice Call
+                    {translations[language].voiceCall}
                   </button>
                   <button 
                     onClick={startVideoCall}
                     className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-green-600 hover:from-teal-600 hover:to-green-700 rounded-xl text-white font-medium transition-all shadow-lg"
                   >
                     <Video className="w-5 h-5" />
-                    Video Call
+                    {translations[language].videoCall}
                   </button>
                 </div>
               </>
@@ -226,8 +228,8 @@ export default function Telemedicine() {
                     <Video className="w-12 h-12 text-white" />
                   </div>
                   <div className="text-gray-300">
-                    <div className="font-medium text-white">Ready to Connect</div>
-                    <div className="text-sm mt-1">Select a doctor to begin video consultation</div>
+                    <div className="font-medium text-white">{translations[language].readyToConnect}</div>
+                    <div className="text-sm mt-1">{translations[language].selectDoctorToBegin}</div>
                   </div>
                 </div>
               </div>
@@ -238,17 +240,17 @@ export default function Telemedicine() {
       
       {/* How It Works Section */}
       <div className={`${theme.glass.heavy} rounded-3xl p-8 mt-12`}>
-        <h2 className="text-3xl font-bold text-white text-center mb-4">How Telemedicine Works</h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-4">{translations[language].howTelemedicineWorks}</h2>
         <p className="text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-          Getting medical care has never been easier. Follow these simple steps to connect with a healthcare professional.
+          {translations[language].gettingMedicalCare}
         </p>
         
         <div className="grid md:grid-cols-4 gap-6">
           {[
-            { step: '01', title: 'Select Doctor', desc: 'Choose from our network of qualified professionals' },
-            { step: '02', title: 'Book Appointment', desc: 'Pick a convenient time slot for your consultation' },
-            { step: '03', title: 'Connect', desc: 'Join your video call at the scheduled time' },
-            { step: '04', title: 'Get Care', desc: 'Receive professional medical advice and follow-up' }
+            { step: '01', title: translations[language].selectDoctor, desc: translations[language].chooseFromNetwork },
+            { step: '02', title: translations[language].bookAppointment, desc: translations[language].pickConvenientTime },
+            { step: '03', title: translations[language].connect, desc: translations[language].joinVideoCall },
+            { step: '04', title: translations[language].getCare, desc: translations[language].receiveProfessionalAdvice }
           ].map((item, i) => (
             <div 
               key={i} 
@@ -268,7 +270,7 @@ export default function Telemedicine() {
       {showVideoCall && (
         <VideoCall 
           onClose={() => setShowVideoCall(false)} 
-          doctorName={selectedDoctor ? selectedDoctor.name : 'Doctor'}
+          doctorName={selectedDoctor ? selectedDoctor.name : translations[language].doctor}
         />
       )}
     </div>

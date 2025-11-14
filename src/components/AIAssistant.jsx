@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { Camera, Mic } from 'lucide-react';
 import { theme } from '../theme';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const AIAssistant = () => {
-  const [selectedOption, setSelectedOption] = useState(null);
+  const { language } = useLanguage();
+  const [isListening, setIsListening] = useState(false);
+
+  const handleVoiceInput = () => {
+    // This would integrate with speech recognition functionality
+    alert(language === 'hi' 
+      ? 'आवाज पहचान सुविधा यहाँ जल्द ही उपलब्ध होगी' 
+      : 'Voice recognition feature coming soon here');
+  };
 
   return (
     <div className="min-h-screen px-16 pt-32">
@@ -31,13 +41,27 @@ const AIAssistant = () => {
             
             <div className="border-b border-white/20 pb-8">
               <div className="text-white/40 text-sm mb-2">03</div>
-              <h3 className="text-3xl font-light text-white mb-4">Voice Assistant</h3>
+              <h3 className="text-3xl font-light text-white mb-4">
+                {language === 'hi' ? 'आवाज सहायक' : 'Voice Assistant'}
+              </h3>
               <p className="text-white/70 mb-6">
-                Multilingual voice support in Hindi, Telugu, Tamil for rural accessibility
+                {language === 'hi' 
+                  ? 'हिंदी, तेलुगु, तमिल में बहुभाषी आवाज समर्थन ग्रामीण पहुंच के लिए' 
+                  : 'Multilingual voice support in Hindi, Telugu, Tamil for rural accessibility'}
               </p>
-              <button className={`${theme.button.secondary} flex items-center space-x-2`}>
+              <button 
+                onClick={handleVoiceInput}
+                className={`${theme.button.secondary} flex items-center space-x-2 ${isListening ? 'animate-pulse' : ''}`}
+              >
                 <Mic className="h-5 w-5" />
-                <span>Start Voice Chat</span>
+                <span>
+                  {isListening 
+                    ? (language === 'hi' ? 'रोकें' : 'Stop') 
+                    : (language === 'hi' ? 'आवाज चैट प्रारंभ करें' : 'Start Voice Chat')}
+                </span>
+                {isListening && (
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                )}
               </button>
             </div>
           </div>

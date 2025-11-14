@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, User } from 'lucide-react';
 import { login, findUserByEmail } from '../utils/auth';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../utils/translations';
 
 const Login = () => {
+  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('user');
@@ -17,7 +20,7 @@ const Login = () => {
     
     // Basic validation
     if (!email || !password) {
-      setError('Please enter both email and password');
+      setError(translations[language].enterEmailAndPassword);
       return;
     }
     
@@ -51,7 +54,7 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Invalid email or password. Please try again.');
+      setError(translations[language].invalidEmailOrPassword);
     }
   };
 
@@ -63,8 +66,8 @@ const Login = () => {
           <div className="w-16 h-16 bg-gradient-teal rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 animate-scaleIn">
             H
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-300">Sign in to access your healthcare dashboard</p>
+          <h1 className="text-3xl font-bold text-white mb-2">{translations[language].welcomeBack}</h1>
+          <p className="text-gray-300">{translations[language].loginToContinue}</p>
         </div>
 
         {/* Login Form */}
@@ -78,7 +81,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* User Type Selection */}
             <div className="animate-fadeInUp animate-delay-200">
-              <label className="block text-sm font-medium text-white mb-3">Sign in as</label>
+              <label className="block text-sm font-medium text-white mb-3">{translations[language].signInAs}</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -89,7 +92,7 @@ const Login = () => {
                       : 'bg-white/10 text-gray-300 hover:bg-white/20 border border-white/20'
                   }`}
                 >
-                  👤 User
+                  👤 {translations[language].user}
                 </button>
                 <button
                   type="button"
@@ -100,14 +103,14 @@ const Login = () => {
                       : 'bg-white/10 text-gray-300 hover:bg-white/20 border border-white/20'
                   }`}
                 >
-                  🔐 Admin
+                  🔐 {translations[language].admin}
                 </button>
               </div>
             </div>
 
             {/* Email Input */}
             <div className="animate-fadeInUp animate-delay-300">
-              <label className="block text-sm font-medium text-white mb-2">Email</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].email}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -123,7 +126,7 @@ const Login = () => {
 
             {/* Password Input */}
             <div className="animate-fadeInUp animate-delay-400">
-              <label className="block text-sm font-medium text-white mb-2">Password</label>
+              <label className="block text-sm font-medium text-white mb-2">{translations[language].password}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -151,9 +154,9 @@ const Login = () => {
                   type="checkbox" 
                   className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary bg-white/10" 
                 />
-                <span className="ml-2 text-sm text-gray-300">Remember me</span>
+                <span className="ml-2 text-sm text-gray-300">{translations[language].rememberMe}</span>
               </label>
-              <a href="#" className="text-sm text-primary hover:text-teal-300">Forgot password?</a>
+              <a href="#" className="text-sm text-primary hover:text-teal-300">{translations[language].forgotPassword}</a>
             </div>
 
             {/* Submit Button */}
@@ -161,16 +164,16 @@ const Login = () => {
               type="submit"
               className="w-full px-8 py-3 backdrop-blur-xl bg-gradient-teal border border-white/30 text-white rounded-xl font-semibold hover:bg-teal-600 transition-all shadow-lg animate-scaleIn"
             >
-              Sign In <ArrowRight className="ml-2 w-5 h-5" />
+              {translations[language].loginBtn} <ArrowRight className="ml-2 w-5 h-5" />
             </button>
           </form>
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center animate-fadeInUp animate-delay-600">
             <p className="text-sm text-gray-300">
-              Don't have an account?{' '}
+              {translations[language].dontHaveAccount}{' '}
               <Link to="/signup" className="text-primary hover:text-teal-300 font-semibold">
-                Sign up
+                {translations[language].signUpHere}
               </Link>
             </p>
           </div>
@@ -179,7 +182,7 @@ const Login = () => {
         {/* Back to Home */}
         <div className="mt-8 text-center animate-fadeInUp animate-delay-700">
           <Link to="/" className="text-sm text-gray-400 hover:text-white flex items-center justify-center">
-            <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> Back to Home
+            <ArrowRight className="w-4 h-4 rotate-180 mr-1" /> {translations[language].backToHome}
           </Link>
         </div>
       </div>
