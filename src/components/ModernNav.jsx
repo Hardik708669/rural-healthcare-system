@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { theme } from '../theme';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Activity } from 'lucide-react';
 import NotificationIcon from './NotificationIcon';
 import UserProfile from './UserProfile';
 import LanguageSelector from './LanguageSelector';
@@ -13,34 +13,57 @@ const ModernNav = () => {
   const { language } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   const isActive = (path) => location.pathname === path;
   
   // Navigation items with translations
-  const navItems = [
+  const baseNavItems = [
     { name: translations[language].home, path: '/' },
     { name: translations[language].telemedicine, path: '/telemedicine' },
     { name: translations[language].aiSymptom, path: '/symptoms' },
     { name: translations[language].reminders, path: '/reminders' },
-    { name: translations[language].dashboard, path: '/dashboard' },
     { name: translations[language].about, path: '/about' }
   ];
+  
+  // Add dashboard link for admin users
+  const navItems = isAdmin 
+    ? [...baseNavItems, { name: translations[language].dashboard, path: '/dashboard', icon: Activity }]
+    : baseNavItems;
 
-  // Check authentication status
+  // Check authentication status and admin role
   const checkAuthStatus = () => {
     const authStatus = localStorage.getItem('isAuthenticated') === 'true';
     setIsAuthenticated(authStatus);
+    
+    // Check if user is admin
+    if (authStatus) {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        try {
+          const user = JSON.parse(currentUser);
+          setIsAdmin(user.role === 'Admin');
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    } else {
+      setIsAdmin(false);
+    }
   };
 
   // For demo purposes, we'll simulate authentication state
   // In a real app, this would come from your auth context or state management
   useEffect(() => {
-    // Check initial auth status
+    // Check initial auth status and admin role
     checkAuthStatus();
     
     // Listen for storage changes (when user logs in/out in other tabs)
     const handleStorageChange = (e) => {
-      if (e.key === 'isAuthenticated') {
+      if (e.key === 'isAuthenticated' || e.key === 'currentUser') {
         checkAuthStatus();
       }
     };
@@ -78,8 +101,9 @@ const ModernNav = () => {
               <Link 
                 key={item.path} 
                 to={item.path} 
-                className={`hover:text-primary transition-colors duration-300 transform hover:scale-105 ${isActive(item.path) ? 'text-primary font-semibold' : ''}`}
+                className={`hover:text-primary transition-colors duration-300 transform hover:scale-105 flex items-center gap-1 ${isActive(item.path) ? 'text-primary font-semibold' : ''}`}
               >
+                {item.icon && <item.icon className="w-4 h-4" />}
                 {item.name}
               </Link>
             ))}
@@ -123,9 +147,10 @@ const ModernNav = () => {
                 <Link 
                   key={item.path} 
                   to={item.path} 
-                  className={`py-2 ${isActive(item.path) ? 'text-primary font-semibold' : 'text-gray-300'} transition-colors duration-300 transform hover:scale-105`}
+                  className={`py-2 ${isActive(item.path) ? 'text-primary font-semibold' : 'text-gray-300'} transition-colors duration-300 transform hover:scale-105 flex items-center gap-2`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
+                  {item.icon && <item.icon className="w-4 h-4" />}
                   {item.name}
                 </Link>
               ))}

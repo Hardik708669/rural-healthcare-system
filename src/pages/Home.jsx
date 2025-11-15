@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="px-6 mt-20">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl mb-16 bg-gradient-to-br from-green-900 via-teal-900 to-emerald-900 p-8 md:p-12">
+      <div className={`relative overflow-hidden rounded-3xl mb-16 bg-gradient-to-br from-green-900 via-teal-900 to-emerald-900 p-8 md:p-12 ${theme.animation.slideInLeft}`}>
         <div className="relative z-10 max-w-4xl">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             {translations[language].aiPoweredRuralHealthcare.split(' ')[0]} <span className="bg-gradient-to-r from-teal-400 via-green-400 to-emerald-400 bg-clip-text text-transparent">{translations[language].aiPoweredRuralHealthcare.split(' ')[1]}</span> {translations[language].aiPoweredRuralHealthcare.split(' ').slice(2).join(' ')}
@@ -31,7 +31,7 @@ export default function Home() {
       </div>
 
       {/* Feature Showcase */}
-      <div className="mb-16">
+      <div className={`mb-16 ${theme.animation.slideInLeft}`}>
         <h2 className="text-3xl font-bold text-white text-center mb-4">
           {translations[language].empoweringRuralHealthcare}
         </h2>
@@ -90,7 +90,7 @@ export default function Home() {
       </div>
 
       {/* Statistics Dashboard Preview */}
-      <div className="backdrop-blur-2xl bg-white/15 border border-white/25 rounded-3xl p-8 mb-16">
+      <div className={`backdrop-blur-2xl bg-white/15 border border-white/25 rounded-3xl p-8 mb-16 ${theme.animation.slideInLeft}`}>
         <h2 className="text-3xl font-bold text-white text-center mb-12">
           {translations[language].realTimeHealthImpact}
         </h2>
@@ -114,7 +114,7 @@ export default function Home() {
       </div>
 
       {/* Testimonials */}
-      <div className="mb-16">
+      <div className={`mb-16 ${theme.animation.slideInLeft}`}>
         <h2 className="text-3xl font-bold text-white text-center mb-12">
           {translations[language].trustedByHealthcareProfessionals}
         </h2>
@@ -153,7 +153,7 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="backdrop-blur-2xl bg-white/15 border border-white/25 rounded-3xl p-8 md:p-12 text-center mb-16">
+      <div className={`backdrop-blur-2xl bg-white/15 border border-white/25 rounded-3xl p-8 md:p-12 text-center mb-16 ${theme.animation.slideInLeft}`}>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
           {translations[language].readyToTransformRuralHealthcare}
         </h2>
