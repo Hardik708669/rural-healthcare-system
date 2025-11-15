@@ -170,6 +170,8 @@ This system addresses the critical healthcare continuity challenges in rural are
 - Resilient healthcare access during worker strikes
 - AI-powered medical guidance
 - Multilingual support for diverse populations
+- 
+
 - Offline functionality for remote areas
 - Comprehensive health monitoring
 
